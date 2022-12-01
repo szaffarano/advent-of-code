@@ -1,0 +1,8 @@
+#!/usr/bin/env zsh
+
+args="${@[*]}"
+if [ "$#" -gt 0 ]; then
+  ./gradlew run --args=""$args""
+else
+  ./gradlew run
+fi
