@@ -3,7 +3,7 @@
 import sys
 
 from util import get_input
-from typing import Tuple
+from collections import deque
 
 
 class Point:
@@ -39,9 +39,6 @@ def next(matrix: list[str], current: Point):
         targets.append(Point(x, y - 1))
 
     return targets
-
-
-from collections import deque
 
 
 def shortest_path(matrix: list[str], start: Point, end: Point):
