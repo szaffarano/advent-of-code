@@ -57,7 +57,7 @@ class Dir:
         )
 
     def flat_dirs(self) -> list["Dir"]:
-        result: list[list[Dir]] = [v.flat_dirs() for v in self.children.values()] 
+        result: list[list[Dir]] = [v.flat_dirs() for v in self.children.values()]
 
         return sum(result, []) + [self]
 

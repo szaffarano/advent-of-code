@@ -4,6 +4,7 @@ import sys
 
 from util import get_input
 
+
 def part_one(lines: list[str]) -> str:
     max: int | None = None
     partial: int = 0
@@ -13,7 +14,8 @@ def part_one(lines: list[str]) -> str:
             partial = 0
         else:
             partial += int(line)
-    return f"{max}" 
+    return f"{max}"
+
 
 def part_two(lines: list[str]) -> str:
     sums: list[int] = []
@@ -31,7 +33,8 @@ def part_two(lines: list[str]) -> str:
             partial = 0
         else:
             partial += int(line)
-    return f"{sum(sums)}" 
+    return f"{sum(sums)}"
+
 
 def main():
     try:
@@ -42,6 +45,7 @@ def main():
     except Exception as e:
         print(e)
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()
