@@ -1,7 +1,7 @@
 use rust::get_input;
 use std::{collections::VecDeque, env, str::Chars};
 
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 enum Value {
     Empty,
     Number(u32),
@@ -54,7 +54,13 @@ fn parse_line(chars: Chars) -> Value {
     value.clone()
 }
 
-impl Value {
+impl PartialOrd for Value {
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for Value {
     fn cmp(&self, other: &Value) -> std::cmp::Ordering {
         if let (Value::Number(a), Value::Number(b)) = (self, other) {
             // println!("Comparing {} with {}", a, b);
@@ -72,16 +78,8 @@ impl Value {
         }
 
         if let (Value::Values(a), Value::Values(b)) = (self, other) {
-            for pair in a.iter().zip(b) {
-                match pair.0.cmp(pair.1) {
-                    std::cmp::Ordering::Greater => return std::cmp::Ordering::Greater,
-                    std::cmp::Ordering::Less => return std::cmp::Ordering::Less,
-                    _ => (),
-                }
-            }
-
             // println!("{:?} vs {:?}", a, b);
-            return a.len().cmp(&b.len());
+            return a.cmp(&b);
         }
 
         std::cmp::Ordering::Greater
@@ -94,7 +92,7 @@ fn part_one(input: &Vec<String>) -> String {
         let pair_one = parse_line(chunk[0].chars());
         let pair_two = parse_line(chunk[1].chars());
 
-        if let std::cmp::Ordering::Less = pair_one.cmp(&pair_two) {
+        if pair_one < pair_two {
             sum += order + 1;
         }
     }
@@ -114,7 +112,8 @@ fn part_two(input: &Vec<String>) -> String {
         .collect::<Vec<Value>>();
 
     packets.extend(vec![divider_one.clone(), divider_two.clone()]);
-    packets.sort_by(|a, b| a.cmp(b));
+    packets.sort();
+    // packets.sort_by(|a, b| a.cmp(b));
 
     let pos_divider_one = packets.iter().position(|i| i == &divider_one).unwrap() + 1;
     let pos_divider_two = packets.iter().position(|i| i == &divider_two).unwrap() + 1;
