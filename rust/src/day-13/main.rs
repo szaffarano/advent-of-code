@@ -55,7 +55,7 @@ fn parse_line(chars: Chars) -> Value {
 }
 
 impl Value {
-    fn compare(&self, other: &Value) -> std::cmp::Ordering {
+    fn cmp(&self, other: &Value) -> std::cmp::Ordering {
         if let (Value::Number(a), Value::Number(b)) = (self, other) {
             // println!("Comparing {} with {}", a, b);
             return a.cmp(b);
@@ -63,20 +63,17 @@ impl Value {
 
         if let (Value::Number(a), Value::Values(_)) = (self, other) {
             // println!("Mixed <{:?}> - {:?}", a, b);
-            return Value::Values(vec![Value::Number(*a)]).compare(other);
+            return Value::Values(vec![Value::Number(*a)]).cmp(other);
         }
 
         if let (Value::Values(_), Value::Number(b)) = (self, other) {
             // println!("Mixed {:?} - <{:?}>", a, b);
-            return self.compare(&Value::Values(vec![Value::Number(*b)]));
+            return self.cmp(&Value::Values(vec![Value::Number(*b)]));
         }
 
         if let (Value::Values(a), Value::Values(b)) = (self, other) {
-            let min = *vec![a.len(), b.len()].iter().min().unwrap_or(&0);
-            for i in 0..min {
-                let value_a = a.get(i).unwrap();
-                let value_b = b.get(i).unwrap();
-                match value_a.compare(value_b) {
+            for pair in a.iter().zip(b) {
+                match pair.0.cmp(pair.1) {
                     std::cmp::Ordering::Greater => return std::cmp::Ordering::Greater,
                     std::cmp::Ordering::Less => return std::cmp::Ordering::Less,
                     _ => (),
@@ -97,7 +94,7 @@ fn part_one(input: &Vec<String>) -> String {
         let pair_one = parse_line(chunk[0].chars());
         let pair_two = parse_line(chunk[1].chars());
 
-        if let std::cmp::Ordering::Less = pair_one.compare(&pair_two) {
+        if let std::cmp::Ordering::Less = pair_one.cmp(&pair_two) {
             sum += order + 1;
         }
     }
@@ -117,7 +114,7 @@ fn part_two(input: &Vec<String>) -> String {
         .collect::<Vec<Value>>();
 
     packets.extend(vec![divider_one.clone(), divider_two.clone()]);
-    packets.sort_by(|a, b| a.compare(b));
+    packets.sort_by(|a, b| a.cmp(b));
 
     let pos_divider_one = packets.iter().position(|i| i == &divider_one).unwrap() + 1;
     let pos_divider_two = packets.iter().position(|i| i == &divider_two).unwrap() + 1;
