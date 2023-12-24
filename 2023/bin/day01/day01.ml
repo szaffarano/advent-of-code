@@ -63,7 +63,5 @@ let part_two input = read_lines input |> sum_up digits_part_two
 
 let () =
   let input = "./data/day01-a.txt" in
-  let result_two = part_two input in
-  let result_one = part_one input in
-  print_endline (string_of_int result_one) ;
-  print_endline (string_of_int result_two)
+  part_one input |> printf "Part one: %d\n";
+  part_two input |> printf "Part two: %d\n";
