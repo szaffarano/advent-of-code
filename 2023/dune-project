@@ -1,0 +1,26 @@
+(lang dune 3.11)
+
+(name advent)
+
+(generate_opam_files true)
+
+(source
+ (github szaffarano/advent-of-code))
+
+(authors "Sebastián Zaffarano")
+
+(maintainers "Sebastián Zaffarano")
+
+(license LICENSE)
+
+(documentation https://github.com/szaffarano/advent-of-code)
+
+(package
+ (name advent)
+ (synopsis "Advent of code 2023")
+ (description "Advent of code 2023")
+ (depends ocaml dune)
+ (tags
+  (advent "learning OCaml")))
+
+; See the complete stanza docs at https://dune.readthedocs.io/en/stable/dune-files.html#dune-project
