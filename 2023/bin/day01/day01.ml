@@ -54,8 +54,7 @@ let rec sum_up digits_resolver data =
       let digits = String.to_list h |> digits_resolver in
       let first = first_element digits |> Int.to_string in
       let last = last_element digits |> Int.to_string in
-      let value = first ^ last in
-      int_of_string value + _sum t
+      (first ^ last |> int_of_string) + _sum t
 
 let part_one input = read_lines input |> sum_up digits_part_one
 
@@ -63,5 +62,5 @@ let part_two input = read_lines input |> sum_up digits_part_two
 
 let () =
   let input = "./data/day01-a.txt" in
-  part_one input |> printf "Part one: %d\n";
-  part_two input |> printf "Part two: %d\n";
+  part_one input |> printf "Part one: %d\n" ;
+  part_two input |> printf "Part two: %d\n"
