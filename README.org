@@ -1,0 +1,6 @@
+#+TITLE: Advent of code
+#+CREATED: 2023-12-24 11:41
+#+AUTHOR: szaffarano (zaffarano)
+
+  - [[2022]]
+  - [[2023]]
