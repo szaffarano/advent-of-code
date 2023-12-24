@@ -43,8 +43,8 @@ let first_element = function [] -> raise (Failure "empty list") | h :: _ -> h
 
 let last_element digits = List.rev digits |> first_element
 
-let rec sum_up digits_resolver data =
-  let _sum = sum_up digits_resolver in
+let rec result digits_resolver data =
+  let _sum = result digits_resolver in
   match data with
   | [] ->
       0
@@ -54,13 +54,15 @@ let rec sum_up digits_resolver data =
       let digits = String.to_list h |> digits_resolver in
       let first = first_element digits |> Int.to_string in
       let last = last_element digits |> Int.to_string in
-      (first ^ last |> int_of_string) + _sum t
+      let partial = first ^ last |> int_of_string in
+      partial + _sum t
 
-let part_one input = read_lines input |> sum_up digits_part_one
+let part_one data = result digits_part_one data
 
-let part_two input = read_lines input |> sum_up digits_part_two
+let part_two data = result digits_part_two data
 
 let () =
   let input = "./data/day01-a.txt" in
-  part_one input |> printf "Part one: %d\n" ;
-  part_two input |> printf "Part two: %d\n"
+  let data = read_lines input in
+  part_one data |> printf "Part one: %d\n" ;
+  part_two data |> printf "Part two: %d\n"
