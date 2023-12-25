@@ -1,27 +1,33 @@
 open Core
+open Re.Pcre
 module StringMap = Map.Make (String)
 
-(* Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green *)
-
+(*
+   Example line:
+   Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
+*)
 let parse_line line =
-  let open Re.Pcre in
   let re = regexp "^Game\\s(\\d+):\\s(.*)$" in
   match extract ~rex:re line with
   | [| _; game; body |] -> game, body
   | _ -> raise (Failure "Invalid line")
 ;;
 
-let extract_sets game =
-  let open Re.Pcre in
+(*
+   Gets a semicolon-separated list of sets and returns a map with the color
+   as key and the max occurrences as value, e.g.:
+   sets = "3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green"
+   result = [("blue", 6); ("red", 4); ("green", 2)]
+*)
+let parse_game sets =
   let re = regexp "\\s?(\\d+)\\s(\\w+)" in
-  String.split ~on:';' game
-  |> List.map ~f:(fun set ->
+  String.split ~on:';' sets
+  |> List.concat_map ~f:(fun set ->
     String.split ~on:',' set
     |> List.map ~f:(fun sample ->
       match extract ~rex:re sample with
       | [| _; count; color |] -> color, Int.of_string count
       | _ -> raise (Failure "Invalid line")))
-  |> List.concat
   |> List.fold ~init:StringMap.empty ~f:(fun acc set ->
     let color = fst set in
     let cubes = snd set in
@@ -37,7 +43,7 @@ let extract_sets game =
 let part_one data =
   List.filter data ~f:(fun s -> String.length s > 0)
   |> List.map ~f:parse_line
-  |> List.map ~f:(fun line -> int_of_string (fst line), extract_sets (snd line))
+  |> List.map ~f:(fun line -> int_of_string (fst line), parse_game (snd line))
   |> List.filter ~f:(fun (_, sets) ->
     let red = Map.find_exn sets "red" in
     let green = Map.find_exn sets "green" in
@@ -47,7 +53,15 @@ let part_one data =
   |> List.fold ~init:0 ~f:( + )
 ;;
 
-let part_two _ = 0
+let part_two data =
+  let calculate_score ~key:_ ~data:count acc = acc * count in
+  List.filter data ~f:(fun s -> String.length s > 0)
+  |> List.map ~f:parse_line
+  |> List.map ~f:snd
+  |> List.map ~f:parse_game
+  |> List.map ~f:(fun game -> Map.fold game ~init:1 ~f:calculate_score)
+  |> List.fold ~init:0 ~f:( + )
+;;
 
 let () =
   let input = "./data/day02.txt" in
