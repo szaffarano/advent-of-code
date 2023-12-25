@@ -29,14 +29,14 @@ let parse_game sets =
       | [| _; count; color |] -> color, Int.of_string count
       | _ -> raise (Failure "Invalid line")))
   |> List.fold ~init:StringMap.empty ~f:(fun acc set ->
-    let color = fst set in
-    let cubes = snd set in
-    let c =
-      match Map.find acc color with
-      | Some current -> Int.max current cubes
-      | None -> cubes
+    let color_in_set = fst set in
+    let cubes_in_set = snd set in
+    let total_cubes =
+      match Map.find acc color_in_set with
+      | Some current -> Int.max current cubes_in_set
+      | None -> cubes_in_set
     in
-    Map.set acc ~key:color ~data:c)
+    Map.set acc ~key:color_in_set ~data:total_cubes)
 ;;
 
 (* only 12 red cubes, 13 green cubes, and 14 blue cubes *)
