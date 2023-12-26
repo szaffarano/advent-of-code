@@ -1,16 +1,9 @@
 open Core
 
-type point =
-  { x : int
-  ; y : int
-  }
-
 type part_number =
   { value : string
-  ; position : point
+  ; position : Advent.point
   }
-
-let to_matrix data = Array.of_list data |> Array.map ~f:String.to_array
 
 type accumulator =
   { current : part_number option
@@ -40,8 +33,16 @@ let find_part_numbers y row =
   | Some current -> Array.append [| current |] folded.part_numbers
 ;;
 
+(* given a list of parts and a point, returns all the parts overlapping with it *)
+let find_parts parts (p : Advent.point) =
+  Array.filter parts ~f:(fun part ->
+    part.position.y = p.y
+    && p.x >= part.position.x
+    && p.x <= part.position.x + String.length part.value)
+;;
+
 let part_one data =
-  let matrix = to_matrix data in
+  let matrix = Advent.matrix_of_array data in
   let part_numbers = Array.concat_mapi matrix ~f:find_part_numbers in
   Array.filter part_numbers ~f:(fun part ->
     not
@@ -53,12 +54,33 @@ let part_one data =
   |> Array.fold ~init:0 ~f:( + )
 ;;
 
-let part_two _ = 0
+let part_two data =
+  let matrix = Advent.matrix_of_array data in
+  let part_numbers = Array.concat_mapi matrix ~f:find_part_numbers in
+  Array.concat_mapi matrix ~f:(fun y row ->
+    Array.mapi row ~f:(fun x c ->
+      match c with
+      | '*' -> Some Advent.{ x; y }
+      | _ -> None))
+  |> Array.filter_opt
+  |> Array.map ~f:(fun (pos : Advent.point) ->
+    Advent.positioned_surroundings matrix ~x:pos.x ~y:pos.y
+    |> Array.filter ~f:(fun v -> Char.(snd v <> '.'))
+    |> Array.concat_map ~f:(fun c -> find_parts part_numbers (fst c))
+    |> Advent.dedup ~cmp:(fun a b ->
+      a.position.x = b.position.x && a.position.y = b.position.y)
+    |> Array.map ~f:(fun p -> p.value)
+    |> Array.map ~f:Int.of_string)
+  |> Array.filter ~f:(fun a -> Array.length a >= 2)
+  |> Array.map ~f:(fun gears -> Array.fold gears ~init:1 ~f:( * ))
+  |> Array.fold ~init:0 ~f:( + )
+;;
 
-(* 514969 *)
 let () =
   let input = "./data/day03.txt" in
   let data = Advent.read_lines input in
+  (* Part one: 514969 *)
   part_one data |> printf "Part one: %d\n";
+  (* Part two: 78915902 *)
   part_two data |> printf "Part two: %d\n"
 ;;
