@@ -129,11 +129,11 @@ let part_two data =
 ;;
 
 let () =
-  let input = "./data/day05-test.txt" in
-  (* let input = "./data/day05.txt" in *)
+  (* let input = "./data/day05-test.txt" in *)
+  let input = "./data/day05.txt" in
   let data = Advent.read input in
-  (* Part one: ?? *)
+  (* Part one: 424490994 *)
   part_one data |> printf "Part one: %d\n";
-  (* Part two: ?? *)
+  (* Part two: 15290096 -> very slow! it takes ~500 secs :( *)
   part_two data |> printf "Part two: %d\n"
 ;;
