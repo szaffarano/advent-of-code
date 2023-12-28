@@ -1,0 +1,6 @@
+(executable
+ (public_name day08)
+ (name day08)
+ (libraries advent core fmt)
+ (preprocess
+  (pps ppx_deriving.show)))

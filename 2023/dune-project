@@ -11,7 +11,7 @@
 
 (maintainers "Sebastián Zaffarano")
 
-(license LICENSE)
+(license MIT)
 
 (documentation https://github.com/szaffarano/advent-of-code)
 
