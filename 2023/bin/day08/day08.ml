@@ -36,53 +36,46 @@ let parse_input data =
   { movements; coords }
 ;;
 
-let find_solution ~finish node directions =
+let find_solution ~start ~finish directions =
   let loop_ids curr = (curr + 1) mod List.length directions.movements in
-  let rec walk current_node =
-    let movement = List.nth_exn directions.movements current_node.direction in
-    let is_end_node = finish current_node in
+  let rec walk partial =
+    let movement = List.nth_exn directions.movements partial.direction in
+    let is_end_node = finish partial.node in
     match is_end_node with
-    | true -> current_node
+    | true -> partial
     | false ->
       let next_node =
         match movement with
-        | 'L' -> Map.find_exn directions.coords current_node.node.left
-        | 'R' -> Map.find_exn directions.coords current_node.node.right
+        | 'L' -> Map.find_exn directions.coords partial.node.left
+        | 'R' -> Map.find_exn directions.coords partial.node.right
         | _ -> failwith "Invalid direction"
       in
-      let next_direction = loop_ids current_node.direction in
+      let next_direction = loop_ids partial.direction in
       let result =
-        { distance = current_node.distance + 1
-        ; direction = next_direction
-        ; node = next_node
-        }
+        { distance = partial.distance + 1; direction = next_direction; node = next_node }
       in
       walk result
   in
-  let start = { distance = 0; direction = 0; node } in
-  walk start
+  directions.coords
+  |> Map.filter ~f:start
+  |> Map.data
+  |> List.map ~f:(fun node -> walk { distance = 0; direction = 0; node })
+  |> List.map ~f:(fun r -> r.distance)
+  |> Advent.lcm_of_list
 ;;
 
 let part_one data =
-  let directions = parse_input data in
-  let start =
-    match Map.find directions.coords "AAA" with
-    | None -> failwith "No initial node"
-    | Some node -> node
-  in
-  find_solution start directions ~finish:(fun n -> String.equal "ZZZ" n.node.name)
-  |> fun solution -> solution.distance
+  parse_input data
+  |> find_solution
+       ~start:(fun n -> String.equal "AAA" n.name)
+       ~finish:(fun n -> String.equal "ZZZ" n.name)
 ;;
 
 let part_two data =
-  let directions = parse_input data in
-  Map.filter directions.coords ~f:(fun node -> String.is_suffix node.name ~suffix:"A")
-  |> Map.data
-  |> List.map ~f:(fun node ->
-    find_solution node directions ~finish:(fun n ->
-      String.is_suffix ~suffix:"Z" n.node.name))
-  |> List.map ~f:(fun r -> r.distance)
-  |> Advent.lcm_of_list
+  parse_input data
+  |> find_solution
+       ~start:(fun n -> String.is_suffix ~suffix:"A" n.name)
+       ~finish:(fun n -> String.is_suffix ~suffix:"Z" n.name)
 ;;
 
 let () =
