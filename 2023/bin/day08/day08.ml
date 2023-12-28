@@ -38,23 +38,22 @@ let parse_input data =
 
 let find_solution ~start ~finish directions =
   let loop_ids curr = (curr + 1) mod List.length directions.movements in
+  let next_node node direction =
+    let movement = List.nth_exn directions.movements direction in
+    match movement with
+    | 'L' -> Map.find_exn directions.coords node.left
+    | 'R' -> Map.find_exn directions.coords node.right
+    | _ -> failwith "Invalid direction"
+  in
   let rec walk partial =
-    let movement = List.nth_exn directions.movements partial.direction in
-    let is_end_node = finish partial.node in
-    match is_end_node with
-    | true -> partial
-    | false ->
-      let next_node =
-        match movement with
-        | 'L' -> Map.find_exn directions.coords partial.node.left
-        | 'R' -> Map.find_exn directions.coords partial.node.right
-        | _ -> failwith "Invalid direction"
-      in
-      let next_direction = loop_ids partial.direction in
-      let result =
-        { distance = partial.distance + 1; direction = next_direction; node = next_node }
-      in
-      walk result
+    if finish partial.node
+    then partial
+    else
+      walk
+        { distance = partial.distance + 1
+        ; direction = loop_ids partial.direction
+        ; node = next_node partial.node partial.direction
+        }
   in
   directions.coords
   |> Map.filter ~f:start
