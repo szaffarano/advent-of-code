@@ -4,7 +4,7 @@ synopsis: "Advent of code 2023"
 description: "Advent of code 2023"
 maintainer: ["Sebastián Zaffarano"]
 authors: ["Sebastián Zaffarano"]
-license: "LICENSE"
+license: "MIT"
 tags: ["advent" "learning OCaml"]
 homepage: "https://github.com/szaffarano/advent-of-code"
 doc: "https://github.com/szaffarano/advent-of-code"
