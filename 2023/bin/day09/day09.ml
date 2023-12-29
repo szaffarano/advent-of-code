@@ -8,27 +8,37 @@ let rec group = function
   | _ -> failwith "List without even number of elements"
 ;;
 
-let all_zeroes l = List.for_all l ~f:(fun x -> x = 0)
+let all_zeroes l = List.for_all l ~f:(Int.equal 0)
+
+let rec upd curr acc =
+  let next l =
+    group l |> List.fold_right ~init:[] ~f:(fun (a, b) acc -> (b - a) :: acc)
+  in
+  if all_zeroes curr then curr :: acc else upd (next curr) (curr :: acc)
+;;
 
 let part_one data =
-  let next l =
-    group l |> List.fold ~init:[] ~f:(fun acc p -> (snd p - fst p) :: acc) |> List.rev
-  in
-  let rec upd curr acc =
-    if all_zeroes curr
-    then curr :: acc
-    else (
-      let u = next curr in
-      upd u (curr :: acc))
-  in
   List.map data ~f:(fun l -> String.split l ~on:' ' |> List.map ~f:Int.of_string)
   |> List.map ~f:(fun l -> upd l [])
   |> List.fold ~init:0 ~f:(fun acc partial ->
-    let x = List.fold partial ~init:0 ~f:(fun acc l -> acc + List.last_exn l) in
+    let x =
+      List.map partial ~f:(fun l -> List.last_exn l)
+      |> List.fold ~init:0 ~f:(fun acc l -> acc + l)
+    in
     acc + x)
 ;;
 
-let part_two data = 0
+let part_two data =
+  List.map data ~f:(fun l -> String.split l ~on:' ' |> List.map ~f:Int.of_string)
+  |> List.map ~f:(fun l -> upd l [])
+  |> List.fold ~init:0 ~f:(fun acc partial ->
+    let x =
+      List.map partial ~f:(fun l -> List.hd_exn l)
+      |> List.reduce ~f:(fun acc x -> x - acc)
+      |> Option.value ~default:0
+    in
+    acc + x)
+;;
 
 let () =
   (* let input = "./data/day09-test.txt" in *)
@@ -36,6 +46,6 @@ let () =
   let data = Advent.read_lines input in
   (* Part one:  1987402313 *)
   part_one data |> Fmt.pr "@.Part one: %d@.";
-  (* Part two: ?? *)
+  (* Part two: 900 *)
   part_two data |> Fmt.pr "@.Part two: %d@."
 ;;
