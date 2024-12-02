@@ -1,0 +1,10 @@
+[versions]
+picocli = "4.7.6"
+junit = "5.11.3"
+
+[libraries]
+junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
+picocli-codegen = { module = "info.picocli:picocli-codegen", version.ref = "picocli" }
+picocli = { module = "info.picocli:picocli", version.ref = "picocli" }
+
+[plugins]
