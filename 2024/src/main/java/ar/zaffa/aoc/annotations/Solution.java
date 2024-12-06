@@ -1,5 +1,6 @@
 package ar.zaffa.aoc.annotations;
 
+import ar.zaffa.aoc.common.SolutionsFinder;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -10,5 +11,5 @@ import java.lang.annotation.Target;
 public @interface Solution {
   String day();
 
-  String part();
+  SolutionsFinder.Part part();
 }

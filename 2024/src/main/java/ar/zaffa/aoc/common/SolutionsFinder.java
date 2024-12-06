@@ -8,6 +8,7 @@ import static java.util.stream.Collectors.toMap;
 
 import ar.zaffa.aoc.annotations.Solution;
 import ar.zaffa.aoc.exceptions.AOCException;
+import io.github.classgraph.AnnotationEnumValue;
 import io.github.classgraph.ClassGraph;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -66,11 +67,14 @@ public class SolutionsFinder {
                               }))
               .collect(
                   toMap(
-                      p ->
-                          format(
-                              "%s-%s",
-                              p.b().getParameterValues().getFirst().getValue(),
-                              p.b().getParameterValues().get(1).getValue()),
+                      p -> {
+                        var day = p.b().getParameterValues().getFirst().getValue();
+                        var part =
+                            Part.valueOf(
+                                ((AnnotationEnumValue) p.b().getParameterValues().get(1).getValue())
+                                    .getValueName());
+                        return format("%s-%s", day, part.number);
+                      },
                       p -> p.a().loadClassAndGetMethod()));
     }
   }

@@ -1,6 +1,8 @@
 package ar.zaffa.aoc.puzzles;
 
 import static ar.zaffa.aoc.common.PuzzleUtils.lines;
+import static ar.zaffa.aoc.common.SolutionsFinder.Part.PART1;
+import static ar.zaffa.aoc.common.SolutionsFinder.Part.PART2;
 import static ar.zaffa.aoc.puzzles.Day02.Direction.UNKNOWN;
 import static java.lang.Math.abs;
 import static java.util.stream.IntStream.range;
@@ -23,12 +25,12 @@ public class Day02 {
     }
   }
 
-  @Solution(day = "2", part = "1")
+  @Solution(day = "2", part = PART1)
   public static int part1(Path input) {
     return getReports(input).map(Day02::isReportSafe).filter(Boolean::booleanValue).toList().size();
   }
 
-  @Solution(day = "2", part = "2")
+  @Solution(day = "2", part = PART2)
   public static int part2(Path input) {
     return getReports(input)
         .map(

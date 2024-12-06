@@ -1,6 +1,8 @@
 package ar.zaffa.aoc.puzzles;
 
 import static ar.zaffa.aoc.common.PuzzleUtils.parsedLines;
+import static ar.zaffa.aoc.common.SolutionsFinder.Part.PART1;
+import static ar.zaffa.aoc.common.SolutionsFinder.Part.PART2;
 import static java.lang.Integer.parseInt;
 
 import ar.zaffa.aoc.annotations.Solution;
@@ -16,7 +18,7 @@ import java.util.stream.Stream;
 public class Day01 {
   private Day01() {}
 
-  @Solution(day = "1", part = "1")
+  @Solution(day = "1", part = PART1)
   public static int part1(Path input) {
     Pair<List<Integer>, List<Integer>> pairs =
         getPairs(input)
@@ -39,7 +41,7 @@ public class Day01 {
         .sum();
   }
 
-  @Solution(day = "1", part = "2")
+  @Solution(day = "1", part = PART2)
   public static int part2(Path input) {
     var pairs = getPairs(input).toList();
     final var occurrences =
