@@ -3,6 +3,8 @@ package ar.zaffa.aoc;
 import static ar.zaffa.aoc.common.PuzzleUtils.exampleForDay;
 import static ar.zaffa.aoc.common.PuzzleUtils.inputForDay;
 
+import ar.zaffa.aoc.annotations.Solution.Day;
+import ar.zaffa.aoc.annotations.Solution.Part;
 import ar.zaffa.aoc.common.SolutionsFinder;
 import java.util.concurrent.Callable;
 import picocli.CommandLine;
@@ -20,10 +22,10 @@ class Cli implements Callable<Integer> {
   @CommandLine.Spec CommandLine.Model.CommandSpec spec;
 
   @Parameters(index = "0", description = "Day of the challenge.")
-  private Integer day;
+  private Day day;
 
   @Parameters(index = "1", description = "Part of the challenge.")
-  private SolutionsFinder.Part part;
+  private Part part;
 
   @Override
   public Integer call() throws Exception { // your business logic goes here...

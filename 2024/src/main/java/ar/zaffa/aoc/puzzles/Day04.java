@@ -1,8 +1,9 @@
 package ar.zaffa.aoc.puzzles;
 
+import static ar.zaffa.aoc.annotations.Solution.Day.DAY04;
+import static ar.zaffa.aoc.annotations.Solution.Part.PART1;
+import static ar.zaffa.aoc.annotations.Solution.Part.PART2;
 import static ar.zaffa.aoc.common.PuzzleUtils.matrix;
-import static ar.zaffa.aoc.common.SolutionsFinder.Part.PART1;
-import static ar.zaffa.aoc.common.SolutionsFinder.Part.PART2;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.IntStream.range;
 
@@ -104,12 +105,12 @@ public class Day04 {
     }
   }
 
-  @Solution(day = "4", part = PART1)
+  @Solution(day = DAY04, part = PART1)
   public static int part1(Path input) {
     return new WordSearcher(matrix(input)).wordCount("XMAS");
   }
 
-  @Solution(day = "4", part = PART2)
+  @Solution(day = DAY04, part = PART2)
   public static int part2(Path input) {
     return new WordSearcher(matrix(input)).xWordCount("MAS");
   }

@@ -1,8 +1,9 @@
 package ar.zaffa.aoc.puzzles;
 
+import static ar.zaffa.aoc.annotations.Solution.Day.DAY03;
+import static ar.zaffa.aoc.annotations.Solution.Part.PART1;
+import static ar.zaffa.aoc.annotations.Solution.Part.PART2;
 import static ar.zaffa.aoc.common.PuzzleUtils.lines;
-import static ar.zaffa.aoc.common.SolutionsFinder.Part.PART1;
-import static ar.zaffa.aoc.common.SolutionsFinder.Part.PART2;
 import static java.lang.Integer.parseInt;
 import static java.util.Objects.nonNull;
 
@@ -53,12 +54,12 @@ public class Day03 {
 
   private Day03() {}
 
-  @Solution(day = "3", part = PART1)
+  @Solution(day = DAY03, part = PART1)
   public static int part1(Path input) {
     return execute(input, Pattern.compile("mul\\((?<l>\\d+),(?<r>\\d+)\\)"));
   }
 
-  @Solution(day = "3", part = PART2)
+  @Solution(day = DAY03, part = PART2)
   public static int part2(Path input) {
     return execute(
         input,
