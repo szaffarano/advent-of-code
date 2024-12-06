@@ -1,38 +1,49 @@
 package ar.zaffa.aoc;
 
+import static ar.zaffa.aoc.common.PuzzleUtils.inputForDay;
+import static ar.zaffa.aoc.common.SolutionsFinder.Part;
+import static ar.zaffa.aoc.common.SolutionsFinder.Part.PART1;
+import static ar.zaffa.aoc.common.SolutionsFinder.Part.PART2;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import ar.zaffa.aoc.puzzles.Day01;
-import ar.zaffa.aoc.puzzles.Puzzle;
-import java.nio.file.Path;
+import ar.zaffa.aoc.common.PuzzleUtils;
+import ar.zaffa.aoc.common.SolutionsFinder;
+import java.lang.reflect.InvocationTargetException;
 import java.util.stream.Stream;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 class PuzzlesTest {
-    private static Stream<Arguments> checkParteOne() {
-        return Stream.of(
-                Arguments.of(new Day01(), Path.of("src/main/resources/examples/day-01.txt"), 11),
-                Arguments.of(new Day01(), Path.of("src/main/resources/input/day-01.txt"), 1580061));
-    }
+  private final SolutionsFinder finder = new SolutionsFinder();
 
-    private static Stream<Arguments> checkParteTwo() {
-        return Stream.of(
-                Arguments.of(new Day01(), Path.of("src/main/resources/examples/day-01.txt"), 31),
-                Arguments.of(
-                        new Day01(), Path.of("src/main/resources/input/day-01.txt"), 23046913));
-    }
+  private static Stream<Arguments> checkExample() {
+    return Stream.of(
+        Arguments.of(1, PART1, 11),
+        Arguments.of(1, PART2, 31),
+        Arguments.of(2, PART1, 2),
+        Arguments.of(2, PART2, 4));
+  }
 
-    @ParameterizedTest
-    @MethodSource
-    void checkParteOne(Puzzle day, Path input, Integer expected) {
-        assertEquals(expected, day.part1(input));
-    }
+  private static Stream<Arguments> checkFinalSolution() {
+    return Stream.of(
+        Arguments.of(1, PART1, 1580061),
+        Arguments.of(1, PART2, 23046913),
+        Arguments.of(2, PART1, 606),
+        Arguments.of(2, PART2, 644));
+  }
 
-    @ParameterizedTest
-    @MethodSource
-    void checkParteTwo(Puzzle day, Path input, Integer expected) {
-        assertEquals(expected, day.part2(input));
-    }
+  @ParameterizedTest(name = "Day {0}, {1}")
+  @MethodSource
+  void checkExample(Integer day, Part part, Integer expected)
+      throws InvocationTargetException, IllegalAccessException {
+    assertEquals(expected, finder.get(day, part).invoke(null, PuzzleUtils.exampleForDay(day)));
+  }
+
+  @ParameterizedTest(name = "Day {0}, {1}")
+  @MethodSource
+  void checkFinalSolution(Integer day, Part part, Integer expected)
+      throws InvocationTargetException, IllegalAccessException {
+    assertEquals(expected, finder.get(day, part).invoke(null, inputForDay(day)));
+  }
 }

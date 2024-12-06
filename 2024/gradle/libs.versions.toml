@@ -1,10 +1,12 @@
 [versions]
 picocli = "4.7.6"
 junit = "5.11.3"
+classgraph = "4.8.179"
 
 [libraries]
 junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
 picocli-codegen = { module = "info.picocli:picocli-codegen", version.ref = "picocli" }
 picocli = { module = "info.picocli:picocli", version.ref = "picocli" }
+classgraph = { module = "io.github.classgraph:classgraph", version.ref = "classgraph" }
 
 [plugins]
