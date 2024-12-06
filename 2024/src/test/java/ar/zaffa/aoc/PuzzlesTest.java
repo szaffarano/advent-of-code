@@ -22,7 +22,9 @@ class PuzzlesTest {
         Arguments.of(1, PART1, 11),
         Arguments.of(1, PART2, 31),
         Arguments.of(2, PART1, 2),
-        Arguments.of(2, PART2, 4));
+        Arguments.of(2, PART2, 4),
+        Arguments.of(3, PART1, 161),
+        Arguments.of(3, PART2, 48));
   }
 
   private static Stream<Arguments> checkFinalSolution() {
@@ -30,7 +32,9 @@ class PuzzlesTest {
         Arguments.of(1, PART1, 1580061),
         Arguments.of(1, PART2, 23046913),
         Arguments.of(2, PART1, 606),
-        Arguments.of(2, PART2, 644));
+        Arguments.of(2, PART2, 644),
+        Arguments.of(3, PART1, 164730528),
+        Arguments.of(3, PART2, 70478672));
   }
 
   @ParameterizedTest(name = "Day {0}, {1}")
