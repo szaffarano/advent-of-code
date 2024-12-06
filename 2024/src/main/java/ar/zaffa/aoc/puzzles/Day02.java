@@ -1,7 +1,7 @@
 package ar.zaffa.aoc.puzzles;
 
 import static ar.zaffa.aoc.common.PuzzleUtils.lines;
-import static ar.zaffa.aoc.puzzles.Day02.Direction.*;
+import static ar.zaffa.aoc.puzzles.Day02.Direction.UNKNOWN;
 import static java.lang.Math.abs;
 import static java.util.stream.IntStream.range;
 
