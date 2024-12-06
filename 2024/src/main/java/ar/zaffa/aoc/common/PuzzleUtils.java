@@ -3,8 +3,8 @@ package ar.zaffa.aoc.common;
 import static java.lang.String.format;
 import static java.nio.file.Files.readAllLines;
 import static java.util.Map.entry;
-import static java.util.regex.Pattern.*;
-import static java.util.stream.IntStream.*;
+import static java.util.regex.Pattern.compile;
+import static java.util.stream.IntStream.range;
 
 import ar.zaffa.aoc.exceptions.AOCException;
 import java.io.IOException;
@@ -31,6 +31,10 @@ public class PuzzleUtils {
     } catch (IOException e) {
       throw new AOCException(e);
     }
+  }
+
+  public static Matrix matrix(Path input) {
+    return new Matrix(lines(input).map(String::toCharArray).toArray(char[][]::new));
   }
 
   public static Stream<Map<String, String>> parsedLines(Path input, String regex) {
