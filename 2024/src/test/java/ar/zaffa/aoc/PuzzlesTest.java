@@ -36,7 +36,7 @@ class PuzzlesTest {
         Arguments.of(DAY04, PART2, 9),
         Arguments.of(DAY05, PART1, 143),
         Arguments.of(DAY05, PART2, 123),
-        Arguments.of(DAY06, PART1, 0),
+        Arguments.of(DAY06, PART1, 41),
         Arguments.of(DAY06, PART2, 0));
   }
 
@@ -52,7 +52,7 @@ class PuzzlesTest {
         Arguments.of(DAY04, PART2, 1948),
         Arguments.of(DAY05, PART1, 6612),
         Arguments.of(DAY05, PART2, 4944),
-        Arguments.of(DAY06, PART1, 0),
+        Arguments.of(DAY06, PART1, 4883),
         Arguments.of(DAY06, PART2, 0));
   }
 
