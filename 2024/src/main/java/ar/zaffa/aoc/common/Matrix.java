@@ -28,9 +28,10 @@ public record Matrix(char[][] matrix) {
     return matrix[p.y()][p.x()];
   }
 
-  public Matrix set(Point p, char value) {
+  public char set(Point p, char value) {
+    var c = matrix[p.y()][p.x()];
     matrix[p.y()][p.x()] = value;
-    return this;
+    return c;
   }
 
   public boolean isOutOfBoundsFor(Point p) {

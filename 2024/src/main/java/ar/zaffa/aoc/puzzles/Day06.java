@@ -4,6 +4,8 @@ import static ar.zaffa.aoc.annotations.Solution.Day.DAY06;
 import static ar.zaffa.aoc.annotations.Solution.Part.PART1;
 import static ar.zaffa.aoc.annotations.Solution.Part.PART2;
 import static ar.zaffa.aoc.common.Direction.RIGHT;
+import static ar.zaffa.aoc.puzzles.Day06.MoveType.LOOP;
+import static ar.zaffa.aoc.puzzles.Day06.MoveType.OPEN;
 import static java.util.stream.IntStream.range;
 
 import ar.zaffa.aoc.annotations.Solution;
@@ -13,9 +15,10 @@ import ar.zaffa.aoc.common.Point;
 import ar.zaffa.aoc.common.PuzzleUtils;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("unused")
 public class Day06 {
@@ -23,22 +26,38 @@ public class Day06 {
 
   @Solution(day = DAY06, part = PART1)
   public static int part1(Path input) {
-    var map = parseInput(input);
-    var steps = new HashSet<Point>();
-    do {
-      var movements = map.moveGuard();
-      if (movements.isEmpty()) {
-        break;
-      }
-      steps.addAll(movements);
-    } while (true);
-
-    return steps.size();
+    return parseInput(input).moveGuard().movements.stream()
+        .map(Movement::position)
+        .collect(Collectors.toSet())
+        .size();
   }
 
   @Solution(day = DAY06, part = PART2)
   public static int part2(Path input) {
-    return 0;
+    var map = parseInput(input);
+    var loops =
+        range(0, map.map.height())
+            .boxed()
+            .flatMap(
+                y ->
+                    range(0, map.map.width())
+                        .mapToObj(x -> new Point(x, y))
+                        .filter(p -> !p.equals(map.guard.position) && !map.isObstacle(p)))
+            .filter(
+                p -> {
+                  var prevValue = map.map.set(p, Map.OBSTACLES.getFirst());
+                  var guard = new Guard(map.guard.position, map.guard.direction);
+
+                  try {
+                    return map.moveGuard().type == LOOP;
+                  } finally {
+                    map.map.set(p, prevValue);
+                    map.guard.position = guard.position;
+                    map.guard.direction = guard.direction;
+                  }
+                });
+
+    return loops.toList().size();
   }
 
   private static Map parseInput(Path input) {
@@ -76,12 +95,23 @@ public class Day06 {
     return new Map(guard, matrix);
   }
 
+  enum MoveType {
+    OPEN,
+    LOOP,
+  }
+
+  record Move(MoveType type, List<Movement> movements) {}
+
+  record Movement(Point position, Direction direction) {}
+
   static class Guard {
     Direction direction;
     Point position;
+    private Point nextPosition;
 
     Guard(Point position, Direction direction) {
       this.position = position;
+      this.nextPosition = null;
       this.direction = direction;
     }
 
@@ -117,26 +147,57 @@ public class Day06 {
             default -> newDirection;
           };
     }
+
+    public void prepareToMove() {
+      nextPosition = position.move(direction);
+    }
+
+    public void revertMove() {
+      nextPosition = null;
+    }
+
+    public void move() {
+      position = nextPosition;
+    }
+
+    public Point nextPosition() {
+      return nextPosition;
+    }
   }
 
   record Map(Guard guard, Matrix map) {
     public static final List<Character> OBSTACLES = List.of('#');
 
-    public List<Point> moveGuard() {
-      List<Point> movements = new ArrayList<>();
-      Point next;
+    public boolean isObstacle(Point p) {
+      return OBSTACLES.contains(map.get(p));
+    }
+
+    public Move moveGuard() {
+      var past = new HashMap<Point, List<Movement>>();
+      var movements = new ArrayList<Movement>();
       do {
-        next = guard.position.move(guard.direction);
-        if (map.isInside(next)) {
-          if (OBSTACLES.contains(map.get(next))) {
+        guard.prepareToMove();
+        if (map.isInside(guard.nextPosition())) {
+          if (isObstacle(guard.nextPosition())) {
             guard.turn(RIGHT);
           } else {
-            movements.add(next);
-            guard.position = next;
+            final var movement = new Movement(guard.nextPosition(), guard.direction);
+
+            var history = past.computeIfAbsent(movement.position, k -> new ArrayList<>());
+
+            if (history.contains(movement)) {
+              guard.revertMove();
+              return new Move(LOOP, past.get(movement.position));
+            }
+            history.add(movement);
+            movements.add(movement);
+
+            guard.move();
           }
         }
-      } while (map.isInside(next));
-      return movements;
+      } while (map.isInside(guard.nextPosition()));
+
+      return new Move(OPEN, movements);
     }
 
     public String toString() {
