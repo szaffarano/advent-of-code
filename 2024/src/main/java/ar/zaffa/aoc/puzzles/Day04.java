@@ -1,13 +1,8 @@
 package ar.zaffa.aoc.puzzles;
 
-import static ar.zaffa.aoc.common.Direction.DOWN;
-import static ar.zaffa.aoc.common.Direction.DOWN_LEFT;
-import static ar.zaffa.aoc.common.Direction.DOWN_RIGHT;
-import static ar.zaffa.aoc.common.Direction.LEFT;
-import static ar.zaffa.aoc.common.Direction.RIGHT;
-import static ar.zaffa.aoc.common.Direction.UP;
-import static ar.zaffa.aoc.common.Direction.UP_LEFT;
-import static ar.zaffa.aoc.common.Direction.UP_RIGHT;
+import static ar.zaffa.aoc.annotations.Solution.Day.DAY04;
+import static ar.zaffa.aoc.annotations.Solution.Part.PART1;
+import static ar.zaffa.aoc.annotations.Solution.Part.PART2;
 import static ar.zaffa.aoc.common.PuzzleUtils.matrix;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.IntStream.range;
@@ -62,36 +57,23 @@ public class Day04 {
     }
 
     private Set<List<Point>> searchWordFrom(
-        Point p, String word, List<Point> acc, Direction... directions) {
+        Point point, String word, List<Point> acc, Direction... directions) {
       if (word.isEmpty()) {
         return Set.of(acc);
       }
-      if (matrix.isOutOfBoundsFor(p)) {
+      if (matrix.isOutOfBoundsFor(point)) {
         return Set.of();
       }
-      if (matrix.get(p) != word.charAt(0)) {
+      if (matrix.get(point) != word.charAt(0)) {
         return Set.of();
       }
 
       String rest = word.substring(1);
-      acc.add(p);
+      acc.add(point);
       return Arrays.stream(directions)
           .map(
-              d ->
-                  switch (d) {
-                    case UP -> searchWordFrom(p.up(), rest, new ArrayList<>(acc), UP);
-                    case DOWN -> searchWordFrom(p.down(), rest, new ArrayList<>(acc), DOWN);
-                    case LEFT -> searchWordFrom(p.left(), rest, new ArrayList<>(acc), LEFT);
-                    case RIGHT -> searchWordFrom(p.right(), rest, new ArrayList<>(acc), RIGHT);
-                    case UP_LEFT ->
-                        searchWordFrom(p.up().left(), rest, new ArrayList<>(acc), UP_LEFT);
-                    case UP_RIGHT ->
-                        searchWordFrom(p.up().right(), rest, new ArrayList<>(acc), UP_RIGHT);
-                    case DOWN_LEFT ->
-                        searchWordFrom(p.down().left(), rest, new ArrayList<>(acc), DOWN_LEFT);
-                    case DOWN_RIGHT ->
-                        searchWordFrom(p.down().right(), rest, new ArrayList<>(acc), DOWN_RIGHT);
-                  })
+              direction ->
+                  searchWordFrom(point.move(direction), rest, new ArrayList<>(acc), direction))
           .collect(HashSet::new, Set::addAll, Set::addAll);
     }
 
@@ -123,12 +105,12 @@ public class Day04 {
     }
   }
 
-  @Solution(day = "4", part = "1")
+  @Solution(day = DAY04, part = PART1)
   public static int part1(Path input) {
     return new WordSearcher(matrix(input)).wordCount("XMAS");
   }
 
-  @Solution(day = "4", part = "2")
+  @Solution(day = DAY04, part = PART2)
   public static int part2(Path input) {
     return new WordSearcher(matrix(input)).xWordCount("MAS");
   }

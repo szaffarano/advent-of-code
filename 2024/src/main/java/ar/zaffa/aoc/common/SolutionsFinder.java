@@ -7,7 +7,10 @@ import static java.util.Objects.nonNull;
 import static java.util.stream.Collectors.toMap;
 
 import ar.zaffa.aoc.annotations.Solution;
+import ar.zaffa.aoc.annotations.Solution.Day;
+import ar.zaffa.aoc.annotations.Solution.Part;
 import ar.zaffa.aoc.exceptions.AOCException;
+import io.github.classgraph.AnnotationEnumValue;
 import io.github.classgraph.ClassGraph;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -17,22 +20,6 @@ import java.util.Map;
 public class SolutionsFinder {
   private final Map<String, Method> solutions;
   private final List<String> warnings = new ArrayList<>();
-
-  public enum Part {
-    PART1(1),
-    PART2(2);
-
-    public final Integer number;
-
-    Part(Integer number) {
-      this.number = number;
-    }
-
-    @Override
-    public String toString() {
-      return format("Part %d", number);
-    }
-  }
 
   public SolutionsFinder() {
     try (var scanResult =
@@ -66,19 +53,27 @@ public class SolutionsFinder {
                               }))
               .collect(
                   toMap(
-                      p ->
-                          format(
-                              "%s-%s",
-                              p.b().getParameterValues().getFirst().getValue(),
-                              p.b().getParameterValues().get(1).getValue()),
+                      p -> {
+                        var day =
+                            Day.valueOf(
+                                ((AnnotationEnumValue)
+                                        p.b().getParameterValues().getFirst().getValue())
+                                    .getValueName());
+                        var part =
+                            Part.valueOf(
+                                ((AnnotationEnumValue) p.b().getParameterValues().get(1).getValue())
+                                    .getValueName());
+                        return format("%s-%s", day.number, part.number);
+                      },
                       p -> p.a().loadClassAndGetMethod()));
     }
   }
 
-  public Method get(Integer day, Part part) throws AOCException {
-    var methodInfo = solutions.get(format("%d-%s", day, part.number));
+  public Method get(Day day, Part part) throws AOCException {
+    var methodInfo = solutions.get(format("%s-%s", day.number, part.number));
     if (isNull(methodInfo)) {
-      throw new AOCException(format("Solution for day %d, part %s not found", day, part.number));
+      throw new AOCException(
+          format("Solution for day %d, part %s not found", day.number, part.number));
     }
     return methodInfo;
   }

@@ -6,6 +6,7 @@ import static java.util.Map.entry;
 import static java.util.regex.Pattern.compile;
 import static java.util.stream.IntStream.range;
 
+import ar.zaffa.aoc.annotations.Solution.Day;
 import ar.zaffa.aoc.exceptions.AOCException;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -17,12 +18,12 @@ import java.util.stream.Stream;
 public class PuzzleUtils {
   private PuzzleUtils() {}
 
-  public static Path exampleForDay(int day) {
-    return Path.of(format("src/main/resources/examples/day-%02d.txt", day));
+  public static Path exampleForDay(Day day) {
+    return Path.of(format("src/main/resources/examples/day-%02d.txt", day.number));
   }
 
-  public static Path inputForDay(int day) {
-    return Path.of(format("src/main/resources/input/day-%02d.txt", day));
+  public static Path inputForDay(Day day) {
+    return Path.of(format("src/main/resources/input/day-%02d.txt", day.number));
   }
 
   public static Stream<String> lines(Path input) {
