@@ -12,6 +12,7 @@ import ar.zaffa.aoc.annotations.Solution;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 @SuppressWarnings("unused")
@@ -25,28 +26,34 @@ public class Day05 {
         .filter(
             pages ->
                 range(0, pages.pages.size())
-                    // noneMatch -> not invalid ranges found
-                    .noneMatch(
-                        i -> {
-                          var page = pages.page(i);
-                          var before = pages.range(0, i);
-                          var after = pages.range(i + 1, pages.size());
-
-                          var validRange =
-                              protocol.isBeforeThat(page, after)
-                                  && protocol.isAfterThat(page, before);
-
-                          // find invalid pages
-                          return !validRange;
-                        }))
-        .map(p -> p.pages.get(p.pages.size() / 2))
+                    .allMatch(
+                        pageNumber ->
+                            protocol.isRangeValid(
+                                pages.page(pageNumber),
+                                pages.range(0, pageNumber),
+                                pages.range(pageNumber + 1, pages.size()))))
+        .map(p -> p.page(p.size() / 2))
         .reduce(Integer::sum)
         .orElse(-1);
   }
 
   @Solution(day = DAY05, part = PART2)
   public static int part2(Path input) {
-    return 0;
+    var protocol = safetyProtocol(input);
+    return protocol.updates.stream()
+        .filter(
+            pages ->
+                range(0, pages.pages.size())
+                    .anyMatch(
+                        pageNumber ->
+                            !protocol.isRangeValid(
+                                pages.page(pageNumber),
+                                pages.range(0, pageNumber),
+                                pages.range(pageNumber + 1, pages.size()))))
+        .map(pages -> pages.sort(protocol.rules))
+        .map(pages -> pages.page(pages.size() / 2))
+        .reduce(Integer::sum)
+        .orElse(-1);
   }
 
   private static SafetyProtocol safetyProtocol(Path input) {
@@ -84,6 +91,36 @@ public class Day05 {
     public List<Integer> range(int from, int to) {
       return safeSubList(pages, from, to);
     }
+
+    public PageNumbers sort(List<OrderRule> rules) {
+      var sorted = new ArrayList<>(pages);
+      sorted.sort(new PageNumberComparator(rules));
+      return new PageNumbers(sorted);
+    }
+
+    static class PageNumberComparator implements Comparator<Integer> {
+      private final List<OrderRule> rules;
+
+      public PageNumberComparator(List<OrderRule> rules) {
+        this.rules = rules;
+      }
+
+      @Override
+      // Returns a negative integer, zero, or a positive integer as the first argument is less than,
+      // equal to, or greater than the second.
+      public int compare(Integer o1, Integer o2) {
+        for (var rule : rules) {
+          var b = rule.pageBefore();
+          var a = rule.pageAfter();
+          if (o1.equals(b) && o2.equals(a)) {
+            return 1;
+          } else if (o1.equals(a) && o2.equals(b)) {
+            return -1;
+          }
+        }
+        return 0;
+      }
+    }
   }
 
   record SafetyProtocol(List<OrderRule> rules, List<PageNumbers> updates) {
@@ -115,6 +152,11 @@ public class Day05 {
               .filter(
                   p -> rules.stream().noneMatch(r -> r.pageAfter() == p && r.pageBefore() == page));
       return valid.count() == after.size();
+    }
+
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    public boolean isRangeValid(Integer page, List<Integer> before, List<Integer> after) {
+      return isBeforeThat(page, after) && isAfterThat(page, before);
     }
   }
 }

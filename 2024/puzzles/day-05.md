@@ -1,15 +1,26 @@
 \--- Day 5: Print Queue ---
 ----------
 
-Satisfied with their search on Ceres, the squadron of scholars suggests subsequently scanning the stationery stacks of sub-basement 17.
+Satisfied with their search on Ceres, the squadron of scholars suggests
+subsequently scanning the stationery stacks of sub-basement 17.
 
-The North Pole printing department is busier than ever this close to Christmas, and while The Historians continue their search of this historically significant facility, an Elf operating a [very familiar printer](/2017/day/1) beckons you over.
+The North Pole printing department is busier than ever this close to Christmas,
+and while The Historians continue their search of this historically significant
+facility, an Elf operating a [very familiar printer](/2017/day/1) beckons you
+over.
 
-The Elf must recognize you, because they waste no time explaining that the new *sleigh launch safety manual* updates won't print correctly. Failure to update the safety manuals would be dire indeed, so you offer your services.
+The Elf must recognize you, because they waste no time explaining that the new
+*sleigh launch safety manual* updates won't print correctly. Failure to update
+the safety manuals would be dire indeed, so you offer your services.
 
-Safety protocols clearly indicate that new pages for the safety manuals must be printed in a *very specific order*. The notation `X|Y` means that if both page number `X` and page number `Y` are to be produced as part of an update, page number `X` *must* be printed at some point before page number `Y`.
+Safety protocols clearly indicate that new pages for the safety manuals must be
+printed in a *very specific order*. The notation `X|Y` means that if both page
+number `X` and page number `Y` are to be produced as part of an update, page
+number `X` *must* be printed at some point before page number `Y`.
 
-The Elf has for you both the *page ordering rules* and the *pages to produce in each update* (your puzzle input), but can't figure out whether each update has the pages in the right order.
+The Elf has for you both the *page ordering rules* and the *pages to produce in
+each update* (your puzzle input), but can't figure out whether each update has
+the pages in the right order.
 
 For example:
 
@@ -109,8 +120,6 @@ you add up the middle page number from those correctly-ordered updates?*
 
 Your puzzle answer was `6612`.
 
-The first half of this puzzle is complete! It provides one gold star: \*
-
 \--- Part Two ---
 ----------
 
@@ -132,8 +141,13 @@ together produces `*123*`.
 Find the updates which are not in the correct order. *What do you get if you
 add up the middle page numbers after correctly ordering just those updates?*
 
-Answer:
+Your puzzle answer was `4944`.
 
-Although it hasn't changed, you can still [get your puzzle input](5/input).
+Both parts of this puzzle are complete! They provide two gold stars: \*\*
 
-You can also [Shareon [Bluesky](https://bsky.app/intent/compose?text=I%27ve+completed+Part+One+of+%22Print+Queue%22+%2D+Day+5+%2D+Advent+of+Code+2024+%23AdventOfCode+https%3A%2F%2Fadventofcode%2Ecom%2F2024%2Fday%2F5) [Twitter](https://twitter.com/intent/tweet?text=I%27ve+completed+Part+One+of+%22Print+Queue%22+%2D+Day+5+%2D+Advent+of+Code+2024&url=https%3A%2F%2Fadventofcode%2Ecom%2F2024%2Fday%2F5&related=ericwastl&hashtags=AdventOfCode) [Mastodon](javascript:void(0);)] this puzzle.
+At this point, you should [return to your Advent calendar](/2024) and try
+another puzzle.
+
+If you still want to see it, you can [get your puzzle input](5/input).
+
+You can also [Shareon [Bluesky](https://bsky.app/intent/compose?text=I%27ve+completed+%22Print+Queue%22+%2D+Day+5+%2D+Advent+of+Code+2024+%23AdventOfCode+https%3A%2F%2Fadventofcode%2Ecom%2F2024%2Fday%2F5) [Twitter](https://twitter.com/intent/tweet?text=I%27ve+completed+%22Print+Queue%22+%2D+Day+5+%2D+Advent+of+Code+2024&url=https%3A%2F%2Fadventofcode%2Ecom%2F2024%2Fday%2F5&related=ericwastl&hashtags=AdventOfCode) [Mastodon](javascript:void(0);)] this puzzle.
