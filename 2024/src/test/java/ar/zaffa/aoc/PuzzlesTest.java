@@ -39,7 +39,7 @@ class PuzzlesTest {
         Arguments.of(DAY05, PART2, 123),
         Arguments.of(DAY06, PART1, 41),
         Arguments.of(DAY06, PART2, 6),
-        Arguments.of(DAY07, PART1, 0),
+        Arguments.of(DAY07, PART1, 3749L),
         Arguments.of(DAY07, PART2, 0));
   }
 
@@ -63,7 +63,7 @@ class PuzzlesTest {
 
   @ParameterizedTest(name = "{0}, {1}")
   @MethodSource
-  void checkExample(Day day, Part part, Integer expected)
+  void checkExample(Day day, Part part, Object expected)
       throws InvocationTargetException, IllegalAccessException {
     assertEquals(expected, finder.get(day, part).invoke(null, PuzzleUtils.exampleForDay(day)));
   }
