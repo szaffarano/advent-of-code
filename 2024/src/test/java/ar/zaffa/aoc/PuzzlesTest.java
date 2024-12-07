@@ -6,6 +6,7 @@ import static ar.zaffa.aoc.annotations.Solution.Day.DAY02;
 import static ar.zaffa.aoc.annotations.Solution.Day.DAY03;
 import static ar.zaffa.aoc.annotations.Solution.Day.DAY04;
 import static ar.zaffa.aoc.annotations.Solution.Day.DAY05;
+import static ar.zaffa.aoc.annotations.Solution.Day.DAY06;
 import static ar.zaffa.aoc.annotations.Solution.Part;
 import static ar.zaffa.aoc.annotations.Solution.Part.PART1;
 import static ar.zaffa.aoc.annotations.Solution.Part.PART2;
@@ -34,7 +35,9 @@ class PuzzlesTest {
         Arguments.of(DAY04, PART1, 18),
         Arguments.of(DAY04, PART2, 9),
         Arguments.of(DAY05, PART1, 143),
-        Arguments.of(DAY05, PART2, 123));
+        Arguments.of(DAY05, PART2, 123),
+        Arguments.of(DAY06, PART1, 0),
+        Arguments.of(DAY06, PART2, 0));
   }
 
   private static Stream<Arguments> checkFinalSolution() {
@@ -48,7 +51,9 @@ class PuzzlesTest {
         Arguments.of(DAY04, PART1, 2599),
         Arguments.of(DAY04, PART2, 1948),
         Arguments.of(DAY05, PART1, 6612),
-        Arguments.of(DAY05, PART2, 4944));
+        Arguments.of(DAY05, PART2, 4944),
+        Arguments.of(DAY06, PART1, 0),
+        Arguments.of(DAY06, PART2, 0));
   }
 
   @ParameterizedTest(name = "{0}, {1}")
