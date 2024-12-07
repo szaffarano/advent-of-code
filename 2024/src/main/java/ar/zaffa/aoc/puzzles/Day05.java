@@ -154,7 +154,6 @@ public class Day05 {
       return valid.count() == after.size();
     }
 
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean isRangeValid(Integer page, List<Integer> before, List<Integer> after) {
       return isBeforeThat(page, after) && isAfterThat(page, before);
     }
