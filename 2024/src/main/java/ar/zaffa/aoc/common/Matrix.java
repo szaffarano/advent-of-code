@@ -28,8 +28,18 @@ public record Matrix(char[][] matrix) {
     return matrix[p.y()][p.x()];
   }
 
+  public char set(Point p, char value) {
+    var c = matrix[p.y()][p.x()];
+    matrix[p.y()][p.x()] = value;
+    return c;
+  }
+
   public boolean isOutOfBoundsFor(Point p) {
     return p.x() < 0 || p.y() < 0 || p.x() >= matrix[0].length || p.y() >= matrix.length;
+  }
+
+  public boolean isInside(Point p) {
+    return !isOutOfBoundsFor(p);
   }
 
   @Override
