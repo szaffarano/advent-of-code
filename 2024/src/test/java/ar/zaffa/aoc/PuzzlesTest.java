@@ -40,7 +40,7 @@ class PuzzlesTest {
         Arguments.of(DAY06, PART1, 41),
         Arguments.of(DAY06, PART2, 6),
         Arguments.of(DAY07, PART1, 3749L),
-        Arguments.of(DAY07, PART2, 0));
+        Arguments.of(DAY07, PART2, 11387L));
   }
 
   private static Stream<Arguments> checkFinalSolution() {
@@ -57,8 +57,8 @@ class PuzzlesTest {
         Arguments.of(DAY05, PART2, 4944),
         Arguments.of(DAY06, PART1, 4883),
         Arguments.of(DAY06, PART2, 1655),
-        Arguments.of(DAY07, PART1, 0),
-        Arguments.of(DAY07, PART2, 0));
+        Arguments.of(DAY07, PART1, 12940396350192L),
+        Arguments.of(DAY07, PART2, 106016735664498L));
   }
 
   @ParameterizedTest(name = "{0}, {1}")
@@ -70,7 +70,7 @@ class PuzzlesTest {
 
   @ParameterizedTest(name = "{0}, {1}")
   @MethodSource
-  void checkFinalSolution(Day day, Part part, Integer expected)
+  void checkFinalSolution(Day day, Part part, Object expected)
       throws InvocationTargetException, IllegalAccessException {
     assertEquals(expected, finder.get(day, part).invoke(null, inputForDay(day)));
   }

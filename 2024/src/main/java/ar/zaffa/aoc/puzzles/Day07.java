@@ -9,7 +9,6 @@ import ar.zaffa.aoc.common.PuzzleUtils;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Stream;
 
 @SuppressWarnings("unused")
 public class Day07 {
@@ -17,36 +16,38 @@ public class Day07 {
 
   @Solution(day = DAY07, part = PART1)
   public static long part1(Path input) {
+    return solution(input, List.of(new Add(), new Multiply()));
+  }
+
+  @Solution(day = DAY07, part = PART2)
+  public static long part2(Path input) {
+    return solution(input, List.of(new Add(), new Multiply(), new Concat()));
+  }
+
+  private static Long solution(Path input, List<BinaryOperation<Long>> operations) {
     return operations(input).stream()
         .filter(
             operation ->
-                evaluate(operation.terms.reversed()).stream()
+                evaluate(operation.terms.reversed(), operations).stream()
                     .map(Term::evaluate)
-                    .toList()
-                    .contains(operation.result))
+                    .anyMatch(result -> result.equals(operation.result)))
         .map(Operation::result)
         .reduce(Long::sum)
         .orElse(-1L);
   }
 
-  @Solution(day = DAY07, part = PART2)
-  public static int part2(Path input) {
-    return 0;
-  }
-
-  static List<Term<Long>> evaluate(List<Long> terms) {
+  static List<Term<Long>> evaluate(List<Long> terms, List<BinaryOperation<Long>> operations) {
     if (terms.isEmpty()) {
       return List.of();
     } else if (terms.size() == 1) {
       return List.of(new Literal<>(terms.getFirst()));
     } else {
       var first = new Literal<>(terms.getFirst());
-      return evaluate(terms.subList(1, terms.size())).stream()
+      return evaluate(terms.subList(1, terms.size()), operations).stream()
           .flatMap(
               result ->
-                  Stream.of(
-                      new Equation<>(first, result, new Add()),
-                      (Term<Long>) new Equation<>(first, result, new Multiply())))
+                  operations.stream()
+                      .<Term<Long>>map(operation -> new Equation<>(result, operation, first)))
           .toList();
     }
   }
@@ -97,7 +98,7 @@ public class Day07 {
     private final Term<T> right;
     private final BinaryOperation<T> operation;
 
-    Equation(Term<T> left, Term<T> right, BinaryOperation<T> operation) {
+    Equation(Term<T> left, BinaryOperation<T> operation, Term<T> right) {
       this.left = left;
       this.right = right;
       this.operation = operation;
@@ -139,6 +140,18 @@ public class Day07 {
     @Override
     public String toString() {
       return "*";
+    }
+  }
+
+  static final class Concat extends BinaryOperation<Long> {
+    @Override
+    public Long apply(Long left, Long right) {
+      return Long.parseLong(left.toString() + right.toString());
+    }
+
+    @Override
+    public String toString() {
+      return "||";
     }
   }
 }

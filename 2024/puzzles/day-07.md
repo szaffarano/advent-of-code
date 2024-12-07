@@ -42,8 +42,13 @@ operators: *add* (`+`) and *multiply* (`*`).
 
 Only three of the above equations can be made true by inserting operators:
 
-* `190: 10 19` has only one position that accepts an operator: between `10` and `19`. Choosing `+` would give `29`, but choosing `*` would give the test value (`10 * 19 = 190`).
-* `3267: 81 40 27` has two positions for operators. Of the four possible configurations of the operators, *two* cause the right side to match the test value: `81 + 40 * 27` and `81 * 40 + 27` both equal `3267` (when evaluated left-to-right)!
+* `190: 10 19` has only one position that accepts an operator: between `10` and
+`19`. Choosing `+` would give `29`, but choosing `*` would give the test value
+(`10 * 19 = 190`).
+* `3267: 81 40 27` has two positions for operators. Of the four possible
+configurations of the operators, *two* cause the right side to match the test
+value: `81 + 40 * 27` and `81 * 40 + 27` both equal `3267` (when evaluated
+left-to-right)!
 * `292: 11 6 16 20` can be solved in exactly one way: `11 + 6 * 16 + 20`.
 
 The engineers just need the *total calibration result*, which is the sum of the
@@ -55,8 +60,6 @@ Determine which equations could possibly be true. *What is their total
 calibration result?*
 
 Your puzzle answer was `12940396350192`.
-
-The first half of this puzzle is complete! It provides one gold star: \*
 
 \--- Part Two ---
 ----------
@@ -85,8 +88,16 @@ produces the new *total calibration result* of `*11387*`.
 Using your new knowledge of elephant hiding spots, determine which equations
 could possibly be true. *What is their total calibration result?*
 
-Answer:
+Your puzzle answer was `106016735664498`.
 
-Although it hasn't changed, you can still [get your puzzle input](7/input).
+Both parts of this puzzle are complete! They provide two gold stars: \*\*
 
-You can also [Shareon [Bluesky](https://bsky.app/intent/compose?text=I%27ve+completed+Part+One+of+%22Bridge+Repair%22+%2D+Day+7+%2D+Advent+of+Code+2024+%23AdventOfCode+https%3A%2F%2Fadventofcode%2Ecom%2F2024%2Fday%2F7) [Twitter](https://twitter.com/intent/tweet?text=I%27ve+completed+Part+One+of+%22Bridge+Repair%22+%2D+Day+7+%2D+Advent+of+Code+2024&url=https%3A%2F%2Fadventofcode%2Ecom%2F2024%2Fday%2F7&related=ericwastl&hashtags=AdventOfCode) [Mastodon](javascript:void(0);)] this puzzle.
+At this point, you should [return to your Advent calendar](/2024) and try
+another puzzle.
+
+If you still want to see it, you can [get your puzzle input](7/input).
+
+You can also [Shareon
+[Bluesky](https://bsky.app/intent/compose?text=I%27ve+completed+%22Bridge+Repair%22+%2D+Day+7+%2D+Advent+of+Code+2024+%23AdventOfCode+https%3A%2F%2Fadventofcode%2Ecom%2F2024%2Fday%2F7)
+[Twitter](https://twitter.com/intent/tweet?text=I%27ve+completed+%22Bridge+Repair%22+%2D+Day+7+%2D+Advent+of+Code+2024&url=https%3A%2F%2Fadventofcode%2Ecom%2F2024%2Fday%2F7&related=ericwastl&hashtags=AdventOfCode)
+[Mastodon](javascript:void(0);)] this puzzle.
