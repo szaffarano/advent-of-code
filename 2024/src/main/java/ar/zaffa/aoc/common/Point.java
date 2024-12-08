@@ -42,6 +42,14 @@ public record Point(int x, int y) {
     return new Point(x + other.x, y + other.y);
   }
 
+  public boolean lessThan(Point other) {
+    return y < other.y || x < other.x;
+  }
+
+  public boolean greaterThan(Point other) {
+    return y > other.y || x > other.x;
+  }
+
   public static class PointComparator implements java.util.Comparator<Point> {
     @Override
     public int compare(Point p1, Point p2) {
