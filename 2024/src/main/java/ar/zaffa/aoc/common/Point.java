@@ -34,6 +34,14 @@ public record Point(int x, int y) {
     return new Point(this.x + x, this.y + y);
   }
 
+  public Point minus(Point other) {
+    return new Point(x - other.x, y - other.y);
+  }
+
+  public Point plus(Point other) {
+    return new Point(x + other.x, y + other.y);
+  }
+
   public static class PointComparator implements java.util.Comparator<Point> {
     @Override
     public int compare(Point p1, Point p2) {
