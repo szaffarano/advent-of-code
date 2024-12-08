@@ -12,6 +12,7 @@ import ar.zaffa.aoc.common.PuzzleUtils;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.UnaryOperator;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -64,39 +65,30 @@ public class Day08 {
                           p2 -> {
                             if (map.get(p1) == map.get(p2)) {
                               var diff = p2.minus(p1);
-                              var l = new ArrayList<Point>();
+                              var antiNodes = new ArrayList<Point>();
 
-                              var c = p1.plus(diff);
-                              while (map.isInside(c)) {
-                                l.add(c);
-                                c = c.plus(diff);
-                              }
+                              antiNodes.addAll(getAntiNodes(map, p1, p -> p.plus(diff)));
+                              antiNodes.addAll(getAntiNodes(map, p2, p -> p.plus(diff)));
+                              antiNodes.addAll(getAntiNodes(map, p1, p -> p.minus(diff)));
+                              antiNodes.addAll(getAntiNodes(map, p2, p -> p.minus(diff)));
 
-                              c = p2.plus(diff);
-                              while (map.isInside(c)) {
-                                l.add(c);
-                                c = c.plus(diff);
-                              }
-
-                              c = p1.minus(diff);
-                              while (map.isInside(c)) {
-                                l.add(c);
-                                c = c.minus(diff);
-                              }
-
-                              c = p2.minus(diff);
-                              while (map.isInside(c)) {
-                                l.add(c);
-                                c = c.minus(diff);
-                              }
-
-                              return l.stream();
+                              return antiNodes.stream();
                             }
                             return Stream.of();
                           });
                 })
             .collect(Collectors.toSet());
     return found.size();
+  }
+
+  private static List<Point> getAntiNodes(Matrix map, Point p, UnaryOperator<Point> operation) {
+    var antiNodes = new ArrayList<Point>();
+    var next = operation.apply(p);
+    while (map.isInside(next)) {
+      antiNodes.add(next);
+      next = operation.apply(next);
+    }
+    return antiNodes;
   }
 
   private static List<Point> findAntennas(Matrix map) {
