@@ -4,7 +4,11 @@ import static ar.zaffa.aoc.annotations.Solution.Day.DAY09;
 import static ar.zaffa.aoc.annotations.Solution.Part.PART1;
 import static ar.zaffa.aoc.annotations.Solution.Part.PART2;
 import static ar.zaffa.aoc.common.PuzzleUtils.lines;
+import static ar.zaffa.aoc.puzzles.Day09.Filesystem.EMPTY_BLOCK;
 import static java.lang.Integer.parseInt;
+import static java.util.Arrays.deepEquals;
+import static java.util.Arrays.deepHashCode;
+import static java.util.Arrays.stream;
 import static java.util.Comparator.comparingInt;
 import static java.util.stream.IntStream.range;
 
@@ -23,6 +27,7 @@ import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
+import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 
 @SuppressWarnings("unused")
@@ -32,81 +37,132 @@ public class Day09 {
   @Solution(day = DAY09, part = PART1)
   public static long part1(Path input) {
     var fs = decompress(input);
-    var files = Arrays.stream(fs).boxed().collect(new FileCollector()).reversed();
-    files.forEach(
-        f -> {
-          for (var i = 0; i < f.size(); i++) {
-            fs[f.firstBlock() + i] = -1;
-            fs[nextFreeBlock(fs)] = f.id;
-          }
-        });
+    fs.files()
+        .reversed()
+        .forEach(
+            f -> {
+              for (var i = 0; i < f.size(); i++) {
+                var oldValue = fs.setBlock(f.firstBlock() + i, EMPTY_BLOCK);
+                fs.setBlock(fs.nextFreeBlock(), oldValue);
+              }
+            });
 
-    return checksum(fs);
+    return fs.checksum();
   }
 
   @Solution(day = DAY09, part = PART2)
   public static long part2(Path input) {
     var fs = decompress(input);
-    var files = Arrays.stream(fs).boxed().collect(new FileCollector()).reversed();
 
-    files.forEach(
-        f -> {
-          var freeBlocks = 0;
-          var firstFreeBlock = nextFreeSlot(fs, f);
+    fs.files()
+        .reversed()
+        .forEach(
+            f -> {
+              var freeBlocks = 0;
+              var firstFreeBlock = fs.nextFreeSlot(f);
 
-          if (firstFreeBlock != -1) {
-            for (int i = 0; i < f.size; i++) {
-              fs[firstFreeBlock + i] = f.id;
-              fs[f.firstBlock() + i] = -1;
-            }
-          }
-        });
+              if (firstFreeBlock != EMPTY_BLOCK) {
+                for (int i = 0; i < f.size; i++) {
+                  var oldValue = fs.setBlock(firstFreeBlock + i, f.id);
+                  fs.setBlock(f.firstBlock() + i, oldValue);
+                }
+              }
+            });
 
-    return checksum(fs);
+    return fs.checksum();
   }
 
-  private static long checksum(int[] fs) {
-    return LongStream.range(0, fs.length).map(i -> fs[(int) i] == -1 ? 0 : fs[(int) i] * i).sum();
+  static Filesystem decompress(Path input) {
+    return new Filesystem(
+        lines(input)
+            .flatMap(l -> l.chars().mapToObj(i -> (char) i))
+            .filter(c -> c != ' ')
+            .map(c -> parseInt(String.valueOf(c)))
+            .collect(new DecompressCollector())
+            .stream()
+            .mapToInt(Integer::intValue)
+            .toArray());
   }
 
-  static int nextFreeBlock(int[] fs) {
-    for (int i = 0; i < fs.length; i++) {
-      if (fs[i] == -1) {
-        return i;
-      }
+  record Filesystem(int[] fs) {
+    public static final int EMPTY_BLOCK = -1;
+
+    public List<File> files() {
+      return stream(fs).boxed().collect(new FileCollector());
     }
-    return -1;
-  }
 
-  static int nextFreeSlot(int[] fs, File f) {
-    var initial = -1;
-    var contiguous = 0;
-    for (int i = f.size(); i < fs.length && contiguous < f.size() && i < f.firstBlock(); i++) {
-      if (fs[i] == -1) {
-        if (initial == -1) {
-          initial = i;
+    public int setBlock(int block, int value) {
+      if (block > fs.length) {
+        throw new AOCException("Block out of bounds");
+      }
+      var prev = fs[block];
+      fs[block] = value;
+      return prev;
+    }
+
+    public int getBlock(int block) {
+      if (block > fs.length) {
+        throw new AOCException("Block out of bounds");
+      }
+      return fs[block];
+    }
+
+    public long checksum() {
+      return LongStream.range(0, fs.length)
+          .map(i -> fs[(int) i] == EMPTY_BLOCK ? 0 : fs[(int) i] * i)
+          .sum();
+    }
+
+    public int nextFreeBlock() {
+      for (int i = 0; i < fs.length; i++) {
+        if (fs[i] == EMPTY_BLOCK) {
+          return i;
         }
-        contiguous++;
-      } else {
-        initial = -1;
-        contiguous = 0;
       }
+      return EMPTY_BLOCK;
     }
-    return contiguous >= f.size() ? initial : -1;
+
+    public int nextFreeSlot(File f) {
+      var initial = EMPTY_BLOCK;
+      var contiguous = 0;
+      for (int i = f.size(); i < fs.length && contiguous < f.size() && i < f.firstBlock(); i++) {
+        if (fs[i] == EMPTY_BLOCK) {
+          if (initial == EMPTY_BLOCK) {
+            initial = i;
+          }
+          contiguous++;
+        } else {
+          initial = EMPTY_BLOCK;
+          contiguous = 0;
+        }
+      }
+      return contiguous >= f.size() ? initial : EMPTY_BLOCK;
+    }
+
+    @Override
+    public int hashCode() {
+      return deepHashCode(IntStream.of(fs).boxed().toArray());
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (obj instanceof Filesystem(int[] other))
+        return deepEquals(
+            IntStream.of(fs).boxed().toArray(), IntStream.of(other).boxed().toArray());
+      return false;
+    }
+
+    @Override
+    public String toString() {
+      return Arrays.toString(fs);
+    }
   }
 
-  static int[] decompress(Path input) {
-    return lines(input)
-        .flatMap(l -> l.chars().mapToObj(i -> (char) i))
-        .filter(c -> c != ' ')
-        .map(c -> parseInt(String.valueOf(c)))
-        .collect(new DecompressCollector())
-        .stream()
-        .mapToInt(Integer::intValue)
-        .toArray();
+  record File(int id, int firstBlock, int size) {
+    public File incrementSize(int increment) {
+      return new File(id, firstBlock, size + increment);
+    }
   }
-
-  record File(int id, int firstBlock, int size) {}
 
   static class FileCollector implements Collector<Integer, Map<Integer, File>, List<File>> {
     private Integer currentBlock = 0;
@@ -119,16 +175,11 @@ public class Day09 {
     @Override
     public BiConsumer<Map<Integer, File>, Integer> accumulator() {
       return (files, fileId) -> {
-        if (fileId != -1) {
+        if (fileId != EMPTY_BLOCK) {
           files.compute(
               fileId,
-              (id, file) -> {
-                if (file == null) {
-                  return new File(fileId, currentBlock, 1);
-                } else {
-                  return new File(file.id(), file.firstBlock(), file.size() + 1);
-                }
-              });
+              (id, file) ->
+                  file == null ? new File(fileId, currentBlock, 1) : file.incrementSize(1));
         }
         currentBlock++;
       };
@@ -175,7 +226,7 @@ public class Day09 {
           list.addAll(range(0, value).mapToObj(i -> id).toList());
         } else {
           state = DecompressState.WAITING_FOR_SIZE;
-          list.addAll(range(0, value).mapToObj(i -> -1).toList());
+          list.addAll(range(0, value).mapToObj(i -> EMPTY_BLOCK).toList());
         }
       };
     }
