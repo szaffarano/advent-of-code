@@ -6,7 +6,6 @@ import static ar.zaffa.aoc.annotations.Solution.Part.PART2;
 import static ar.zaffa.aoc.common.PuzzleUtils.lines;
 import static java.lang.Integer.parseInt;
 import static java.util.Comparator.comparingInt;
-import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.IntStream.range;
 
 import ar.zaffa.aoc.annotations.Solution;
@@ -24,7 +23,6 @@ import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
-import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 
 @SuppressWarnings("unused")
@@ -34,30 +32,14 @@ public class Day09 {
   @Solution(day = DAY09, part = PART1)
   public static long part1(Path input) {
     var fs = decompress(input);
-    var freeBlocks =
-        range(0, fs.length)
-            .flatMap(
-                i -> {
-                  if (fs[i] == -1) {
-                    return IntStream.of(i);
-                  }
-                  return IntStream.empty();
-                })
-            .boxed()
-            .collect(toCollection(ArrayList::new));
-
-    range(0, fs.length - 1)
-        .forEach(
-            i -> {
-              var position = fs.length - i - 1;
-              if (fs[position] != -1 && !freeBlocks.isEmpty()) {
-                var nextFreeBlock = freeBlocks.removeFirst();
-                if (nextFreeBlock < position) {
-                  fs[nextFreeBlock] = fs[position];
-                  fs[position] = -1;
-                }
-              }
-            });
+    var files = Arrays.stream(fs).boxed().collect(new FileCollector()).reversed();
+    files.forEach(
+        f -> {
+          for (var i = 0; i < f.size(); i++) {
+            fs[f.firstBlock() + i] = -1;
+            fs[nextFreeBlock(fs)] = f.id;
+          }
+        });
 
     return checksum(fs);
   }
@@ -85,6 +67,15 @@ public class Day09 {
 
   private static long checksum(int[] fs) {
     return LongStream.range(0, fs.length).map(i -> fs[(int) i] == -1 ? 0 : fs[(int) i] * i).sum();
+  }
+
+  static int nextFreeBlock(int[] fs) {
+    for (int i = 0; i < fs.length; i++) {
+      if (fs[i] == -1) {
+        return i;
+      }
+    }
+    return -1;
   }
 
   static int nextFreeSlot(int[] fs, File f) {
@@ -161,13 +152,13 @@ public class Day09 {
     }
   }
 
-  enum DecompressState {
-    WAITING_FOR_SIZE,
-    WAITING_FOR_FREE_SPACE,
-  }
-
   static class DecompressCollector implements Collector<Integer, List<Integer>, List<Integer>> {
-    DecompressState state = DecompressState.WAITING_FOR_SIZE;
+    enum DecompressState {
+      WAITING_FOR_SIZE,
+      WAITING_FOR_FREE_SPACE,
+    }
+
+    private DecompressState state = DecompressState.WAITING_FOR_SIZE;
     private final AtomicInteger idGenerator = new AtomicInteger();
 
     @Override
