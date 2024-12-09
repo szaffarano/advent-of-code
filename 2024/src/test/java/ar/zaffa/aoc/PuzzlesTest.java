@@ -51,7 +51,7 @@ class PuzzlesTest {
 
   private static Stream<Arguments> checkFinalSolution() {
     return Stream.of(
-        Arguments.of(DAY09, PART2, 8529293116363L),
+        Arguments.of(DAY09, PART2, 6347435485773L),
         Arguments.of(DAY09, PART1, 6320029754031L),
         Arguments.of(DAY08, PART2, 927),
         Arguments.of(DAY08, PART1, 259),

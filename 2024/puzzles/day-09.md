@@ -32,12 +32,16 @@ with ID `1`, and a five-block file with ID `2`. Using one character for each
 block where digits are the file ID and `.` is free space, the disk map `12345`
 represents these individual blocks:
 
-``` 0..111....22222 ```
+```
+0..111....22222
+```
 
 The first example above, `2333133121414131402`, represents these individual
 blocks:
 
-``` 00...111...2...333.44.5555.6666.777.888899 ```
+```
+00...111...2...333.44.5555.6666.777.888899
+```
 
 The amphipod would like to *move file blocks one at a time* from the end of the
 disk to the leftmost free space block (until there are no gaps remaining
@@ -87,8 +91,6 @@ puzzle; it is a single, very long line.)
 
 Your puzzle answer was `6320029754031`.
 
-The first half of this puzzle is complete! It provides one gold star: \*
-
 \--- Part Two ---
 ----------
 
@@ -126,8 +128,12 @@ example's checksum would be `*2858*`.
 Start over, now compacting the amphipod's hard drive using this new method
 instead. *What is the resulting filesystem checksum?*
 
-Answer:
+Your puzzle answer was `6347435485773`.
 
-Although it hasn't changed, you can still [get your puzzle input](9/input).
+Both parts of this puzzle are complete! They provide two gold stars: \*\*
 
-You can also [Shareon [Bluesky](https://bsky.app/intent/compose?text=I%27ve+completed+Part+One+of+%22Disk+Fragmenter%22+%2D+Day+9+%2D+Advent+of+Code+2024+%23AdventOfCode+https%3A%2F%2Fadventofcode%2Ecom%2F2024%2Fday%2F9) [Twitter](https://twitter.com/intent/tweet?text=I%27ve+completed+Part+One+of+%22Disk+Fragmenter%22+%2D+Day+9+%2D+Advent+of+Code+2024&url=https%3A%2F%2Fadventofcode%2Ecom%2F2024%2Fday%2F9&related=ericwastl&hashtags=AdventOfCode) [Mastodon](javascript:void(0);)] this puzzle.
+At this point, you should [return to your Advent calendar](/2024) and try another puzzle.
+
+If you still want to see it, you can [get your puzzle input](9/input).
+
+You can also [Shareon [Bluesky](https://bsky.app/intent/compose?text=I%27ve+completed+%22Disk+Fragmenter%22+%2D+Day+9+%2D+Advent+of+Code+2024+%23AdventOfCode+https%3A%2F%2Fadventofcode%2Ecom%2F2024%2Fday%2F9) [Twitter](https://twitter.com/intent/tweet?text=I%27ve+completed+%22Disk+Fragmenter%22+%2D+Day+9+%2D+Advent+of+Code+2024&url=https%3A%2F%2Fadventofcode%2Ecom%2F2024%2Fday%2F9&related=ericwastl&hashtags=AdventOfCode) [Mastodon](javascript:void(0);)] this puzzle.
