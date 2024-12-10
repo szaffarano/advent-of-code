@@ -9,9 +9,6 @@ import java.nio.file.Path;
 
 @SuppressWarnings("unused")
 public class Day11 {
-  public static final int START = 0;
-  public static final int END = 9;
-
   private Day11() {}
 
   @Solution(day = DAY11, part = PART1)
