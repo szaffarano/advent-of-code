@@ -25,7 +25,8 @@ public class SolutionsFinder {
   private final Map<Day, Map<Part, SolutionInfo>> solutions;
   private final List<String> warnings = new ArrayList<>();
 
-  public record SolutionInfo(Day day, Part part, Method method, String example, String expected) {
+  public record SolutionInfo(
+      Day day, Part part, Method method, String exampleValue, String expectedValue) {
     @Override
     public String toString() {
       return format("Day %02d, Part %02d", day.number, part.number);
@@ -64,16 +65,16 @@ public class SolutionsFinder {
                               }))
               .collect(
                   groupingBy(
-                      SolutionsFinder::getDay,
+                      SolutionsFinder::day,
                       toMap(
-                          SolutionsFinder::getPart,
+                          SolutionsFinder::part,
                           p ->
                               new SolutionInfo(
-                                  getDay(p),
-                                  getPart(p),
+                                  day(p),
+                                  part(p),
                                   p.a().loadClassAndGetMethod(),
-                                  getExample(p),
-                                  getExpected(p)))));
+                                  exampleValue(p),
+                                  expectedValue(p)))));
     }
   }
 
@@ -90,20 +91,20 @@ public class SolutionsFinder {
     return Collections.unmodifiableMap(solutions);
   }
 
-  private static String getExample(Pair<MethodInfo, AnnotationInfo> p) {
+  private static String exampleValue(Pair<MethodInfo, AnnotationInfo> p) {
     return (String) p.b().getParameterValues().get(2).getValue();
   }
 
-  private static String getExpected(Pair<MethodInfo, AnnotationInfo> p) {
+  private static String expectedValue(Pair<MethodInfo, AnnotationInfo> p) {
     return (String) p.b().getParameterValues().get(3).getValue();
   }
 
-  private static Part getPart(Pair<MethodInfo, AnnotationInfo> p) {
+  private static Part part(Pair<MethodInfo, AnnotationInfo> p) {
     return Part.valueOf(
         ((AnnotationEnumValue) p.b().getParameterValues().get(1).getValue()).getValueName());
   }
 
-  private static Day getDay(Pair<MethodInfo, AnnotationInfo> p) {
+  private static Day day(Pair<MethodInfo, AnnotationInfo> p) {
     return Day.valueOf(
         ((AnnotationEnumValue) p.b().getParameterValues().getFirst().getValue()).getValueName());
   }

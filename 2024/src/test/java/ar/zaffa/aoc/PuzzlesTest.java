@@ -1,9 +1,10 @@
 package ar.zaffa.aoc;
 
+import static ar.zaffa.aoc.common.PuzzleUtils.exampleForDay;
+import static ar.zaffa.aoc.common.PuzzleUtils.inputForDay;
 import static java.util.Comparator.comparing;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import ar.zaffa.aoc.common.PuzzleUtils;
 import ar.zaffa.aoc.common.SolutionsFinder;
 import ar.zaffa.aoc.common.SolutionsFinder.SolutionInfo;
 import java.lang.reflect.InvocationTargetException;
@@ -19,15 +20,15 @@ class PuzzlesTest {
   private static Stream<Arguments> checkExample() {
     return finder.all().entrySet().stream()
         .flatMap(e -> e.getValue().values().stream())
-        .filter(info -> !Objects.equals(info.example(), ""))
+        .filter(info -> !Objects.equals(info.exampleValue(), ""))
         .sorted(comparing(SolutionInfo::day).thenComparing(SolutionInfo::part).reversed())
         .map(Arguments::of);
   }
 
-  private static Stream<Arguments> checkFinalSolution() {
+  private static Stream<Arguments> checkSolution() {
     return finder.all().entrySet().stream()
         .flatMap(e -> e.getValue().values().stream())
-        .filter(info -> !Objects.equals(info.expected(), ""))
+        .filter(info -> !Objects.equals(info.expectedValue(), ""))
         .sorted(comparing(SolutionInfo::day).thenComparing(SolutionInfo::part).reversed())
         .map(Arguments::of);
   }
@@ -36,16 +37,13 @@ class PuzzlesTest {
   @MethodSource
   void checkExample(SolutionInfo info) throws InvocationTargetException, IllegalAccessException {
     assertEquals(
-        info.example(),
-        info.method().invoke(null, PuzzleUtils.exampleForDay(info.day())).toString());
+        info.exampleValue(), info.method().invoke(null, exampleForDay(info.day())).toString());
   }
 
   @ParameterizedTest
   @MethodSource
-  void checkFinalSolution(SolutionInfo info)
-      throws InvocationTargetException, IllegalAccessException {
+  void checkSolution(SolutionInfo info) throws InvocationTargetException, IllegalAccessException {
     assertEquals(
-        info.expected(),
-        info.method().invoke(null, PuzzleUtils.inputForDay(info.day())).toString());
+        info.expectedValue(), info.method().invoke(null, inputForDay(info.day())).toString());
   }
 }
