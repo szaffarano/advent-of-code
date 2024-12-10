@@ -31,7 +31,7 @@ class PuzzlesTest {
   private static Stream<Arguments> checkExample() {
     return Stream.of(
         Arguments.of(DAY10, PART2, 0),
-        Arguments.of(DAY10, PART1, 0),
+        Arguments.of(DAY10, PART1, 36),
         Arguments.of(DAY09, PART2, 2858L),
         Arguments.of(DAY09, PART1, 1928L),
         Arguments.of(DAY08, PART2, 34),
@@ -55,8 +55,8 @@ class PuzzlesTest {
   private static Stream<Arguments> checkFinalSolution() {
     return Stream.of(
         Arguments.of(DAY10, PART2, 0),
-        Arguments.of(DAY10, PART2, 0),
-        Arguments.of(DAY09, PART1, 6320029754031L),
+        Arguments.of(DAY10, PART1, 754),
+        Arguments.of(DAY09, PART2, 6347435485773L),
         Arguments.of(DAY09, PART1, 6320029754031L),
         Arguments.of(DAY08, PART2, 927),
         Arguments.of(DAY08, PART1, 259),
