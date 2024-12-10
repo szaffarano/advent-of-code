@@ -20,7 +20,7 @@ import java.util.stream.Stream;
 public class Day08 {
   private Day08() {}
 
-  @Solution(day = DAY08, part = PART1)
+  @Solution(day = DAY08, part = PART1, example = "14", expected = "259")
   public static int part1(Path input) {
     var map = PuzzleUtils.matrix(input);
     var antennas = findAntennas(map);
@@ -46,7 +46,7 @@ public class Day08 {
     return found.size();
   }
 
-  @Solution(day = DAY08, part = PART2)
+  @Solution(day = DAY08, part = PART2, example = "34", expected = "927")
   public static int part2(Path input) {
     var map = PuzzleUtils.matrix(input);
     var antennas = findAntennas(map);

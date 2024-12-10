@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 public class Day06 {
   private Day06() {}
 
-  @Solution(day = DAY06, part = PART1)
+  @Solution(day = DAY06, part = PART1, example = "41", expected = "4883")
   public static int part1(Path input) {
     return parseInput(input).moveGuard().movements.stream()
         .map(Movement::position)
@@ -32,7 +32,7 @@ public class Day06 {
         .size();
   }
 
-  @Solution(day = DAY06, part = PART2)
+  @Solution(day = DAY06, part = PART2, example = "6", expected = "1655")
   public static int part2(Path input) {
     var map = parseInput(input);
     var loops =

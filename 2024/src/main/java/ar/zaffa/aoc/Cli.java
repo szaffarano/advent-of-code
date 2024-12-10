@@ -9,7 +9,6 @@ import ar.zaffa.aoc.common.SolutionsFinder;
 import java.util.concurrent.Callable;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
-import picocli.CommandLine.Parameters;
 
 @Command(
     name = "aoc",
@@ -21,20 +20,24 @@ class Cli implements Callable<Integer> {
 
   @CommandLine.Spec CommandLine.Model.CommandSpec spec;
 
-  @Parameters(index = "0", description = "Day of the challenge.")
+  @CommandLine.Option(
+      names = {"-d", "--day"},
+      description = "Day of the challenge.")
   private Day day;
 
-  @Parameters(index = "1", description = "Part of the challenge.")
+  @CommandLine.Option(
+      names = {"-p", "--part"},
+      description = "Part of the challenge.")
   private Part part;
 
   @Override
   public Integer call() throws Exception { // your business logic goes here...
     printWarnings();
 
-    var method = solutionsFinder.get(day, part);
+    var info = solutionsFinder.get(day, part);
 
-    var exampleResult = method.invoke(null, exampleForDay(day));
-    var result = method.invoke(null, inputForDay(day));
+    var exampleResult = info.method().invoke(null, exampleForDay(day));
+    var result = info.method().invoke(null, inputForDay(day));
 
     spec.commandLine().getOut().println("Example Result: " + exampleResult);
     spec.commandLine().getOut().println("Final Result: " + result);

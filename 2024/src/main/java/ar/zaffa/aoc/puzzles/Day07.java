@@ -14,12 +14,12 @@ import java.util.List;
 public class Day07 {
   private Day07() {}
 
-  @Solution(day = DAY07, part = PART1)
+  @Solution(day = DAY07, part = PART1, example = "3749", expected = "12940396350192")
   public static long part1(Path input) {
     return solution(input, List.of(new Add(), new Multiply()));
   }
 
-  @Solution(day = DAY07, part = PART2)
+  @Solution(day = DAY07, part = PART2, example = "11387", expected = "106016735664498")
   public static long part2(Path input) {
     return solution(input, List.of(new Add(), new Multiply(), new Concat()));
   }

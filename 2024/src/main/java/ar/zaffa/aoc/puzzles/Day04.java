@@ -105,12 +105,12 @@ public class Day04 {
     }
   }
 
-  @Solution(day = DAY04, part = PART1)
+  @Solution(day = DAY04, part = PART1, example = "18", expected = "2599")
   public static int part1(Path input) {
     return new WordSearcher(matrix(input)).wordCount("XMAS");
   }
 
-  @Solution(day = DAY04, part = PART2)
+  @Solution(day = DAY04, part = PART2, example = "9", expected = "1948")
   public static int part2(Path input) {
     return new WordSearcher(matrix(input)).xWordCount("MAS");
   }

@@ -19,7 +19,7 @@ import java.util.stream.Stream;
 public class Day01 {
   private Day01() {}
 
-  @Solution(day = DAY01, part = PART1)
+  @Solution(day = DAY01, part = PART1, example = "11", expected = "1580061")
   public static int part1(Path input) {
     Pair<List<Integer>, List<Integer>> pairs =
         getPairs(input)
@@ -42,7 +42,7 @@ public class Day01 {
         .sum();
   }
 
-  @Solution(day = DAY01, part = PART2)
+  @Solution(day = DAY01, part = PART2, example = "31", expected = "23046913")
   public static int part2(Path input) {
     var pairs = getPairs(input).toList();
     final var occurrences =

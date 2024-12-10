@@ -21,7 +21,7 @@ public class Day10 {
 
   private Day10() {}
 
-  @Solution(day = DAY10, part = PART1)
+  @Solution(day = DAY10, part = PART1, example = "36", expected = "754")
   public static int part1(Path input) {
     var matrix = parseInput(input);
     return matrix
@@ -35,7 +35,7 @@ public class Day10 {
         .reduce(0, Integer::sum);
   }
 
-  @Solution(day = DAY10, part = PART2)
+  @Solution(day = DAY10, part = PART2, example = "81", expected = "1609")
   public static int part2(Path input) {
     var matrix = parseInput(input);
 
