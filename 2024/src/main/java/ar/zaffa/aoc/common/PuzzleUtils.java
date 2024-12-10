@@ -10,6 +10,7 @@ import ar.zaffa.aoc.annotations.Solution.Day;
 import ar.zaffa.aoc.exceptions.AOCException;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
@@ -36,6 +37,13 @@ public class PuzzleUtils {
 
   public static Matrix matrix(Path input) {
     return new Matrix(lines(input).map(String::toCharArray).toArray(char[][]::new));
+  }
+
+  public static IntMatrix intMatrix(Path input) {
+    return new IntMatrix(
+        Arrays.stream(lines(input).map(String::toCharArray).toArray(char[][]::new))
+            .map(row -> range(0, row.length).map(c -> Character.getNumericValue(row[c])).toArray())
+            .toArray(int[][]::new));
   }
 
   public static Stream<Map<String, String>> parsedLines(Path input, String regex) {
