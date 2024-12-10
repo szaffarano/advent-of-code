@@ -34,7 +34,7 @@ import java.util.stream.LongStream;
 public class Day09 {
   private Day09() {}
 
-  @Solution(day = DAY09, part = PART1)
+  @Solution(day = DAY09, part = PART1, example = "1928", expected = "6320029754031")
   public static long part1(Path input) {
     var fs = decompress(input);
     fs.files()
@@ -50,7 +50,7 @@ public class Day09 {
     return fs.checksum();
   }
 
-  @Solution(day = DAY09, part = PART2)
+  @Solution(day = DAY09, part = PART2, example = "2858", expected = "6347435485773")
   public static long part2(Path input) {
     var fs = decompress(input);
 

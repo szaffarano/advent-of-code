@@ -19,7 +19,7 @@ import java.util.List;
 public class Day05 {
   private Day05() {}
 
-  @Solution(day = DAY05, part = PART1)
+  @Solution(day = DAY05, part = PART1, example = "143", expected = "6612")
   public static int part1(Path input) {
     var protocol = safetyProtocol(input);
     return protocol.updates.stream()
@@ -37,7 +37,7 @@ public class Day05 {
         .orElse(-1);
   }
 
-  @Solution(day = DAY05, part = PART2)
+  @Solution(day = DAY05, part = PART2, example = "123", expected = "4944")
   public static int part2(Path input) {
     var protocol = safetyProtocol(input);
     return protocol.updates.stream()

@@ -44,7 +44,7 @@ public @interface Solution {
 
     @Override
     public String toString() {
-      return format("Day %d", number);
+      return format("%d", number);
     }
   }
 
@@ -60,11 +60,15 @@ public @interface Solution {
 
     @Override
     public String toString() {
-      return format("Part %d", number);
+      return format("%d", number);
     }
   }
 
   Day day();
 
   Part part();
+
+  String example() default "";
+
+  String expected() default "";
 }

@@ -26,12 +26,12 @@ public class Day02 {
     }
   }
 
-  @Solution(day = DAY02, part = PART1)
+  @Solution(day = DAY02, part = PART1, example = "2", expected = "606")
   public static int part1(Path input) {
     return getReports(input).map(Day02::isReportSafe).filter(Boolean::booleanValue).toList().size();
   }
 
-  @Solution(day = DAY02, part = PART2)
+  @Solution(day = DAY02, part = PART2, example = "4", expected = "644")
   public static int part2(Path input) {
     return getReports(input)
         .map(

@@ -54,12 +54,12 @@ public class Day03 {
 
   private Day03() {}
 
-  @Solution(day = DAY03, part = PART1)
+  @Solution(day = DAY03, part = PART1, example = "161", expected = "164730528")
   public static int part1(Path input) {
     return execute(input, Pattern.compile("mul\\((?<l>\\d+),(?<r>\\d+)\\)"));
   }
 
-  @Solution(day = DAY03, part = PART2)
+  @Solution(day = DAY03, part = PART2, example = "48", expected = "70478672")
   public static int part2(Path input) {
     return execute(
         input,
