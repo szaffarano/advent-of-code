@@ -61,8 +61,6 @@ Consider the arrangement of stones in front of you. *How many stones will you ha
 
 Your puzzle answer was `189167`.
 
-The first half of this puzzle is complete! It provides one gold star: \*
-
 \--- Part Two ---
 ----------
 
@@ -70,8 +68,12 @@ The Historians sure are taking a long time. To be fair, the infinite corridors *
 
 *How many stones would you have after blinking a total of 75 times?*
 
-Answer:
+Your puzzle answer was `225253278506288`.
 
-Although it hasn't changed, you can still [get your puzzle input](11/input).
+Both parts of this puzzle are complete! They provide two gold stars: \*\*
 
-You can also [Shareon [Bluesky](https://bsky.app/intent/compose?text=I%27ve+completed+Part+One+of+%22Plutonian+Pebbles%22+%2D+Day+11+%2D+Advent+of+Code+2024+%23AdventOfCode+https%3A%2F%2Fadventofcode%2Ecom%2F2024%2Fday%2F11) [Twitter](https://twitter.com/intent/tweet?text=I%27ve+completed+Part+One+of+%22Plutonian+Pebbles%22+%2D+Day+11+%2D+Advent+of+Code+2024&url=https%3A%2F%2Fadventofcode%2Ecom%2F2024%2Fday%2F11&related=ericwastl&hashtags=AdventOfCode) [Mastodon](javascript:void(0);)] this puzzle.
+At this point, you should [return to your Advent calendar](/2024) and try another puzzle.
+
+If you still want to see it, you can [get your puzzle input](11/input).
+
+You can also [Shareon [Bluesky](https://bsky.app/intent/compose?text=I%27ve+completed+%22Plutonian+Pebbles%22+%2D+Day+11+%2D+Advent+of+Code+2024+%23AdventOfCode+https%3A%2F%2Fadventofcode%2Ecom%2F2024%2Fday%2F11) [Twitter](https://twitter.com/intent/tweet?text=I%27ve+completed+%22Plutonian+Pebbles%22+%2D+Day+11+%2D+Advent+of+Code+2024&url=https%3A%2F%2Fadventofcode%2Ecom%2F2024%2Fday%2F11&related=ericwastl&hashtags=AdventOfCode) [Mastodon](javascript:void(0);)] this puzzle.
