@@ -20,16 +20,16 @@ public class Day11 {
 
   @Solution(day = DAY11, part = PART1, example = "55312", expected = "189167")
   public static long part1(Path input) {
-    return result(input, 25);
+    return result(stones(input), 25);
   }
 
   @Solution(day = DAY11, part = PART2, example = "65601038650482", expected = "225253278506288")
   public static long part2(Path input) {
-    return result(input, 75);
+    return result(stones(input), 75);
   }
 
-  private static Long result(Path input, int blinks) {
-    return stones(input).stream()
+  private static Long result(List<Long> stones, int blinks) {
+    return stones.stream()
         .map(s -> numOfSplits(s, blinks, new ConcurrentHashMap<>()))
         .reduce(Long::sum)
         .orElse(0L);
