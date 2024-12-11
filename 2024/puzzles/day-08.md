@@ -1,5 +1,6 @@
-\--- Day 8: Resonant Collinearity ---
-----------
+# Day 8
+
+## Part one: Resonant Collinearity
 
 You find yourselves on the [roof](/2016/day/25) of a top-secret Easter Bunny
 installation.
@@ -14,7 +15,7 @@ Each antenna is tuned to a specific *frequency* indicated by a single lowercase
 letter, uppercase letter, or digit. You create a map (your puzzle input) of
 these antennas. For example:
 
-```
+```text
 ............
 ........0...
 .....0......
@@ -40,7 +41,7 @@ one on either side of them.
 So, for these two antennas with frequency `a`, they create the two antinodes
 marked with `#`:
 
-```
+```text
 ..........
 ...#......
 ..........
@@ -58,7 +59,7 @@ Adding a third antenna with the same frequency creates several more antinodes.
 It would ideally add four antinodes, but two are off the right side of the map,
 so instead it adds only two:
 
-```
+```text
 ..........
 ...#......
 #.........
@@ -78,7 +79,7 @@ contain antennas. In this diagram, the lone antenna with frequency capital `A`
 creates no antinodes but has a lowercase-`a`-frequency antinode at its
 location:
 
-```
+```text
 ..........
 ...#......
 #.........
@@ -96,7 +97,7 @@ The first example has antennas with two different frequencies, so the antinodes
 they create look like this, plus an antinode overlapping the topmost
 `A`-frequency antenna:
 
-```
+```text
 ......#....#
 ...#....0...
 ....#0....#.
@@ -121,8 +122,7 @@ bounds of the map contain an antinode?*
 
 Your puzzle answer was `259`.
 
-\--- Part Two ---
-----------
+## Part Two
 
 Watching over your shoulder as you work, one of The Historians asks if you took
 the effects of resonant harmonics into your calculations.
@@ -137,7 +137,7 @@ frequency).
 
 So, these three `T`-frequency antennas now create many antinodes:
 
-```
+```text
 T....#....
 ...T......
 .T....#...
@@ -158,7 +158,7 @@ antinodes in the above example to `*9*`.
 The original example now has `*34*` antinodes, including the antinodes that
 appear on every antenna:
 
-```
+```text
 ##....#....#
 .#.#....0...
 ..#.#0....#.

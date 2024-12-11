@@ -1,5 +1,6 @@
-\--- Day 9: Disk Fragmenter ---
-----------
+# Day 9
+
+## Part one: Disk Fragmenter
 
 Another push of the button leaves you in the familiar hallways of some friendly
 [amphipods](/2021/day/23)! Good thing you each somehow got your own personal
@@ -14,7 +15,9 @@ isn't working; you offer to help.
 He shows you the *disk map* (your puzzle input) he's already generated. For
 example:
 
-``` 2333133121414131402 ```
+```text
+2333133121414131402
+```
 
 The disk map uses a dense format to represent the layout of *files* and *free
 space* on the disk. The digits alternate between indicating the length of a
@@ -32,14 +35,13 @@ with ID `1`, and a five-block file with ID `2`. Using one character for each
 block where digits are the file ID and `.` is free space, the disk map `12345`
 represents these individual blocks:
 
-```
+```text
 0..111....22222
 ```
 
-The first example above, `2333133121414131402`, represents these individual
-blocks:
+The first example above, `2333133121414131402`, represents these individual blocks:
 
-```
+```text
 00...111...2...333.44.5555.6666.777.888899
 ```
 
@@ -47,7 +49,7 @@ The amphipod would like to *move file blocks one at a time* from the end of the
 disk to the leftmost free space block (until there are no gaps remaining
 between file blocks). For the disk map `12345`, the process looks like this:
 
-```
+```text
 0..111....22222
 02.111....2222.
 022111....222..
@@ -59,7 +61,7 @@ between file blocks). For the disk map `12345`, the process looks like this:
 
 The first example requires a few more steps:
 
-```
+```text
 00...111...2...333.44.5555.6666.777.888899
 009..111...2...333.44.5555.6666.777.88889.
 0099.111...2...333.44.5555.6666.777.8888..
@@ -91,8 +93,7 @@ puzzle; it is a single, very long line.)
 
 Your puzzle answer was `6320029754031`.
 
-\--- Part Two ---
-----------
+## Part Two
 
 Upon completion, two things immediately become clear. First, the disk
 definitely has a lot more contiguous free space, just like the amphipod hoped.
@@ -113,7 +114,7 @@ enough to fit the file, the file does not move.
 
 The first example from above now proceeds differently:
 
-```
+```text
 00...111...2...333.44.5555.6666.777.888899
 0099.111...2...333.44.5555.6666.777.8888..
 0099.1117772...333.44.5555.6666.....8888..
@@ -132,8 +133,12 @@ Your puzzle answer was `6347435485773`.
 
 Both parts of this puzzle are complete! They provide two gold stars: \*\*
 
-At this point, you should [return to your Advent calendar](/2024) and try another puzzle.
+At this point, you should [return to your Advent calendar](/2024) and try
+another puzzle.
 
 If you still want to see it, you can [get your puzzle input](9/input).
 
-You can also [Shareon [Bluesky](https://bsky.app/intent/compose?text=I%27ve+completed+%22Disk+Fragmenter%22+%2D+Day+9+%2D+Advent+of+Code+2024+%23AdventOfCode+https%3A%2F%2Fadventofcode%2Ecom%2F2024%2Fday%2F9) [Twitter](https://twitter.com/intent/tweet?text=I%27ve+completed+%22Disk+Fragmenter%22+%2D+Day+9+%2D+Advent+of+Code+2024&url=https%3A%2F%2Fadventofcode%2Ecom%2F2024%2Fday%2F9&related=ericwastl&hashtags=AdventOfCode) [Mastodon](javascript:void(0);)] this puzzle.
+You can also [Shareon
+[Bluesky](https://bsky.app/intent/compose?text=I%27ve+completed+%22Disk+Fragmenter%22+%2D+Day+9+%2D+Advent+of+Code+2024+%23AdventOfCode+https%3A%2F%2Fadventofcode%2Ecom%2F2024%2Fday%2F9)
+[Twitter](https://twitter.com/intent/tweet?text=I%27ve+completed+%22Disk+Fragmenter%22+%2D+Day+9+%2D+Advent+of+Code+2024&url=https%3A%2F%2Fadventofcode%2Ecom%2F2024%2Fday%2F9&related=ericwastl&hashtags=AdventOfCode)
+[Mastodon](javascript:void(0);)] this puzzle.

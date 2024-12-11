@@ -38,5 +38,3 @@ func main() {
   fmt.Printf("Result One: %s\n", partOne(lines))
   fmt.Printf("Result Two: %s\n", partTwo(lines))
 }
-
-

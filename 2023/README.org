@@ -1,4 +1,4 @@
-#+TITLE: Advent of code 2023 
+#+TITLE: Advent of code 2023
 #+CREATED: 2023-12-24 11:43
 #+AUTHOR: szaffarano (zaffarano)
 
@@ -6,4 +6,3 @@ Learning OCaml by solving the Advent of Code 2023 problems.
 
 #+ATTR_HTML: :style margin-left: auto; margin-right: auto;
 [[./img/ocaml.svg]]
-

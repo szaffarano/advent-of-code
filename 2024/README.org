@@ -1,9 +1,8 @@
-#+TITLE: Advent of code 2024 
+#+TITLE: Advent of code 2024
 #+CREATED: 2024-12-02 09:11:
 #+AUTHOR: szaffarano (zaffarano)
 
-Back to the roots! 
+Back to the roots!
 
 #+ATTR_HTML: :style margin-left: auto; margin-right: auto;
 [[./img/java.svg]]
-

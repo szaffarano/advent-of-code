@@ -1,5 +1,6 @@
-\--- Day 7: Bridge Repair ---
-----------
+# Day 7
+
+## Part one: Bridge Repair
 
 The Historians take you to a familiar [rope bridge](/2022/day/9) over a river
 in the middle of a jungle. The Chief isn't on this side of the bridge, though;
@@ -18,7 +19,7 @@ puzzle input).
 
 For example:
 
-```
+```text
 190: 10 19
 3267: 81 40 27
 83: 17 5
@@ -61,8 +62,7 @@ calibration result?*
 
 Your puzzle answer was `12940396350192`.
 
-\--- Part Two ---
-----------
+## Part Two
 
 The engineers seem concerned; the total calibration result you gave them is
 nowhere close to being within safety tolerances. Just then, you spot your

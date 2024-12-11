@@ -1,5 +1,6 @@
-\--- Day 6: Guard Gallivant ---
-----------
+# Day 6
+
+## Part one: Guard Gallivant
 
 The Historians use their fancy [device](4) again, this time to whisk you all
 away to the North Pole prototype suit manufacturing lab... in the year
@@ -15,7 +16,7 @@ Historians can search safely?
 
 You start by making a map (your puzzle input) of the situation. For example:
 
-```
+```text
 ....#.....
 .........#
 ..........
@@ -42,7 +43,7 @@ repeatedly following these steps:
 Following the above protocol, the guard moves up several times until she
 reaches an obstacle (in this case, a pile of failed suit prototypes):
 
-```
+```text
 ....#.....
 ....^....#
 ..........
@@ -59,7 +60,7 @@ reaches an obstacle (in this case, a pile of failed suit prototypes):
 Because there is now an obstacle in front of the guard, she turns right before
 continuing straight in her new facing direction:
 
-```
+```text
 ....#.....
 ........>#
 ..........
@@ -76,7 +77,7 @@ continuing straight in her new facing direction:
 Reaching another obstacle (a spool of several *very* long polymers), she turns
 right again and continues downward:
 
-```
+```text
 ....#.....
 .........#
 ..........
@@ -93,7 +94,7 @@ right again and continues downward:
 This process continues for a while, but the guard eventually leaves the mapped
 area (after walking past a tank of universal solvent):
 
-```
+```text
 ....#.....
 .........#
 ..........
@@ -112,7 +113,7 @@ the lab will be in the patrol path. *Including the guard's starting position*,
 the positions visited by the guard before leaving the area are marked with an
 `X`:
 
-```
+```text
 ....#.....
 ....XXXXX#
 ....X...X.
@@ -133,8 +134,7 @@ visit before leaving the mapped area?*
 
 Your puzzle answer was `4883`.
 
-\--- Part Two ---
-----------
+## Part Two
 
 While The Historians begin working around the guard's patrol route, you borrow
 their fancy device and step outside the lab. From the safety of a supply
@@ -164,7 +164,7 @@ left/right.
 
 Option one, put a printing press next to the guard's starting position:
 
-```
+```text
 ....#.....
 ....+---+#
 ....|...|.
@@ -181,7 +181,7 @@ Option one, put a printing press next to the guard's starting position:
 Option two, put a stack of failed suit prototypes in the bottom right quadrant
 of the mapped area:
 
-```
+```text
 ....#.....
 ....+---+#
 ....|...|.
@@ -198,7 +198,7 @@ of the mapped area:
 Option three, put a crate of chimney-squeeze prototype fabric next to the
 standing desk in the bottom right quadrant:
 
-```
+```text
 ....#.....
 ....+---+#
 ....|...|.
@@ -214,7 +214,7 @@ standing desk in the bottom right quadrant:
 
 Option four, put an alchemical retroencabulator near the bottom left corner:
 
-```
+```text
 ....#.....
 ....+---+#
 ....|...|.
@@ -230,7 +230,7 @@ Option four, put an alchemical retroencabulator near the bottom left corner:
 
 Option five, put the alchemical retroencabulator a bit to the right instead:
 
-```
+```text
 ....#.....
 ....+---+#
 ....|...|.
@@ -244,10 +244,9 @@ Option five, put the alchemical retroencabulator a bit to the right instead:
 
 ```
 
-Option six, put a tank of sovereign glue right next to the tank of universal
-solvent:
+Option six, put a tank of sovereign glue right next to the tank of universal solvent:
 
-```
+```text
 ....#.....
 ....+---+#
 ....|...|.
@@ -279,4 +278,7 @@ another puzzle.
 
 If you still want to see it, you can [get your puzzle input](6/input).
 
-You can also [Shareon [Bluesky](https://bsky.app/intent/compose?text=I%27ve+completed+%22Guard+Gallivant%22+%2D+Day+6+%2D+Advent+of+Code+2024+%23AdventOfCode+https%3A%2F%2Fadventofcode%2Ecom%2F2024%2Fday%2F6) [Twitter](https://twitter.com/intent/tweet?text=I%27ve+completed+%22Guard+Gallivant%22+%2D+Day+6+%2D+Advent+of+Code+2024&url=https%3A%2F%2Fadventofcode%2Ecom%2F2024%2Fday%2F6&related=ericwastl&hashtags=AdventOfCode) [Mastodon](javascript:void(0);)] this puzzle.
+You can also [Shareon
+[Bluesky](https://bsky.app/intent/compose?text=I%27ve+completed+%22Guard+Gallivant%22+%2D+Day+6+%2D+Advent+of+Code+2024+%23AdventOfCode+https%3A%2F%2Fadventofcode%2Ecom%2F2024%2Fday%2F6)
+[Twitter](https://twitter.com/intent/tweet?text=I%27ve+completed+%22Guard+Gallivant%22+%2D+Day+6+%2D+Advent+of+Code+2024&url=https%3A%2F%2Fadventofcode%2Ecom%2F2024%2Fday%2F6&related=ericwastl&hashtags=AdventOfCode)
+[Mastodon](javascript:void(0);)] this puzzle.

@@ -41,7 +41,7 @@ fn part_one(input: &Vec<String>) -> String {
     format!("{}", sum)
 }
 
-/// X: lose 
+/// X: lose
 /// Y: draw
 /// Z: win
 fn part_two(input: &Vec<String>) -> String {

@@ -1,5 +1,6 @@
-\--- Day 10: Hoof It ---
-----------
+# Day 10
+
+## Part one: Hoof It
 
 You all arrive at a [Lava Production Facility](/2023/day/15) on a floating
 island in the sky. As the others begin to search the massive industrial
@@ -17,7 +18,7 @@ Perhaps you can help fill in the missing hiking trails?
 The topographic map indicates the *height* at each position using a scale from
 `0` (lowest) to `9` (highest). For example:
 
-```
+```text
 0123
 1234
 8765
@@ -45,7 +46,7 @@ it can reach a single `9` (the one in the bottom left).
 
 This trailhead has a score of `2`:
 
-```
+```text
 ...0...
 ...1...
 ...2...
@@ -62,7 +63,7 @@ do not appear on your actual topographic map.)
 This trailhead has a score of `4` because every `9` is reachable via a hiking
 trail except the one immediately to the left of the trailhead:
 
-```
+```text
 ..90..9
 ...1.98
 ...2..7
@@ -76,7 +77,7 @@ trail except the one immediately to the left of the trailhead:
 This topographic map contains *two* trailheads; the trailhead at the top has a
 score of `1`, while the trailhead at the bottom has a score of `2`:
 
-```
+```text
 10..9..
 2...8..
 3...7..
@@ -89,7 +90,7 @@ score of `1`, while the trailhead at the bottom has a score of `2`:
 
 Here's a larger example:
 
-```
+```text
 89010123
 78121874
 87430965
@@ -111,8 +112,7 @@ is the sum of the scores of all trailheads on your topographic map?*
 
 Your puzzle answer was `754`.
 
-\--- Part Two ---
-----------
+## Part Two
 
 The reindeer spends a few minutes reviewing your hiking trail map before
 realizing something, disappearing for a few minutes, and finally returning with
@@ -122,7 +122,7 @@ The paper describes a second way to measure a trailhead called its *rating*. A
 trailhead's rating is the *number of distinct hiking trails* which begin at
 that trailhead. For example:
 
-```
+```text
 .....0.
 ..4321.
 ..5..2.
@@ -136,7 +136,7 @@ that trailhead. For example:
 The above map has a single trailhead; its rating is `3` because there are
 exactly three distinct hiking trails which begin at that position:
 
-```
+```text
 .....0.   .....0.   .....0.
 ..4321.   .....1.   .....1.
 ..5....   .....2.   .....2.
@@ -149,7 +149,7 @@ exactly three distinct hiking trails which begin at that position:
 
 Here is a map containing a single trailhead with rating `13`:
 
-```
+```text
 ..90..9
 ...1.98
 ...2..7
@@ -164,7 +164,7 @@ This map contains a single trailhead with rating `227` (because there are `121`
 distinct hiking trails that lead to the `9` on the right edge and `106` that
 lead to the `9` on the bottom edge):
 
-```
+```text
 012345
 123456
 234567
@@ -176,7 +176,7 @@ lead to the `9` on the bottom edge):
 
 Here's the larger example from before:
 
-```
+```text
 89010123
 78121874
 87430965
@@ -200,8 +200,12 @@ Your puzzle answer was `1609`.
 
 Both parts of this puzzle are complete! They provide two gold stars: \*\*
 
-At this point, you should [return to your Advent calendar](/2024) and try another puzzle.
+At this point, you should [return to your Advent calendar](/2024) and try
+another puzzle.
 
 If you still want to see it, you can [get your puzzle input](10/input).
 
-You can also [Shareon [Bluesky](https://bsky.app/intent/compose?text=I%27ve+completed+%22Hoof+It%22+%2D+Day+10+%2D+Advent+of+Code+2024+%23AdventOfCode+https%3A%2F%2Fadventofcode%2Ecom%2F2024%2Fday%2F10) [Twitter](https://twitter.com/intent/tweet?text=I%27ve+completed+%22Hoof+It%22+%2D+Day+10+%2D+Advent+of+Code+2024&url=https%3A%2F%2Fadventofcode%2Ecom%2F2024%2Fday%2F10&related=ericwastl&hashtags=AdventOfCode) [Mastodon](javascript:void(0);)] this puzzle.
+You can also [Shareon
+[Bluesky](https://bsky.app/intent/compose?text=I%27ve+completed+%22Hoof+It%22+%2D+Day+10+%2D+Advent+of+Code+2024+%23AdventOfCode+https%3A%2F%2Fadventofcode%2Ecom%2F2024%2Fday%2F10)
+[Twitter](https://twitter.com/intent/tweet?text=I%27ve+completed+%22Hoof+It%22+%2D+Day+10+%2D+Advent+of+Code+2024&url=https%3A%2F%2Fadventofcode%2Ecom%2F2024%2Fday%2F10&related=ericwastl&hashtags=AdventOfCode)
+[Mastodon](javascript:void(0);)] this puzzle.
