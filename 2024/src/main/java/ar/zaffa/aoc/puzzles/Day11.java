@@ -28,14 +28,17 @@ public class Day11 {
     return result(stones(input), 75);
   }
 
-  private static Long result(List<Long> stones, int blinks) {
+  private static Long result(List<String> stones, int blinks) {
     return stones.stream()
         .map(s -> numOfSplits(s, blinks, new ConcurrentHashMap<>()))
         .reduce(Long::sum)
         .orElse(0L);
   }
 
-  static Long numOfSplits(Long stone, Integer blinks, Map<Long, Map<Integer, Long>> cache) {
+  static Long numOfSplits(String str, Integer blinks, Map<String, Map<Integer, Long>> cache) {
+    // remove leading zeros
+    var stone = str.replaceFirst("^0+(?!$)", "");
+
     if (cache.containsKey(stone) && cache.get(stone).containsKey(blinks)) {
       return cache.get(stone).get(blinks);
     }
@@ -44,27 +47,24 @@ public class Day11 {
     if (blinks == 0) {
       // no blinks, just one stone
       result = 1L;
-    } else if (stone == 0) {
+    } else if (stone.equals("0")) {
       // rule 1
-      result = numOfSplits(1L, blinks - 1, cache);
+      result = numOfSplits("1", blinks - 1, cache);
     } else {
-      var str = Long.toString(stone);
-      if (str.length() % 2 == 0) {
+      if (stone.length() % 2 == 0) {
         // rule 2
-        result =
-            numOfSplits(parseLong(str.substring(0, str.length() / 2)), blinks - 1, cache)
-                + numOfSplits(parseLong(str.substring(str.length() / 2)), blinks - 1, cache);
+        var s1 = stone.substring(0, stone.length() / 2);
+        var s2 = stone.substring(stone.length() / 2);
+        result = numOfSplits(s1, blinks - 1, cache) + numOfSplits(s2, blinks - 1, cache);
       } else {
         // rule 3
-        result = numOfSplits(stone * 2024L, blinks - 1, cache);
+        result = numOfSplits(Long.toString(parseLong(stone) * 2024L), blinks - 1, cache);
       }
     }
     return cache.computeIfAbsent(stone, k -> new HashMap<>()).computeIfAbsent(blinks, k -> result);
   }
 
-  private static List<Long> stones(Path input) {
-    return lines(input)
-        .flatMap(line -> Arrays.stream(line.split(" ")).map(Long::parseLong))
-        .toList();
+  private static List<String> stones(Path input) {
+    return lines(input).flatMap(line -> Arrays.stream(line.split(" "))).toList();
   }
 }
