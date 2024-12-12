@@ -220,11 +220,16 @@ Adding these together produces its new total price of `*1206*`.
 
 *What is the new total price of fencing all regions on your map?*
 
-Answer:
+Your puzzle answer was `909564`.
 
-Although it hasn't changed, you can still [get your puzzle input](12/input).
+Both parts of this puzzle are complete! They provide two gold stars: \*\*
+
+At this point, you should [return to your Advent calendar](/2024) and try
+another puzzle.
+
+If you still want to see it, you can [get your puzzle input](12/input).
 
 You can also [Shareon
-[Bluesky](https://bsky.app/intent/compose?text=I%27ve+completed+Part+One+of+%22Garden+Groups%22+%2D+Day+12+%2D+Advent+of+Code+2024+%23AdventOfCode+https%3A%2F%2Fadventofcode%2Ecom%2F2024%2Fday%2F12)
-[Twitter](https://twitter.com/intent/tweet?text=I%27ve+completed+Part+One+of+%22Garden+Groups%22+%2D+Day+12+%2D+Advent+of+Code+2024&url=https%3A%2F%2Fadventofcode%2Ecom%2F2024%2Fday%2F12&related=ericwastl&hashtags=AdventOfCode)
+[Bluesky](https://bsky.app/intent/compose?text=I%27ve+completed+%22Garden+Groups%22+%2D+Day+12+%2D+Advent+of+Code+2024+%23AdventOfCode+https%3A%2F%2Fadventofcode%2Ecom%2F2024%2Fday%2F12)
+[Twitter](https://twitter.com/intent/tweet?text=I%27ve+completed+%22Garden+Groups%22+%2D+Day+12+%2D+Advent+of+Code+2024&url=https%3A%2F%2Fadventofcode%2Ecom%2F2024%2Fday%2F12&related=ericwastl&hashtags=AdventOfCode)
 [Mastodon](javascript:void(0);)] this puzzle.

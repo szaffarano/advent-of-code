@@ -36,14 +36,21 @@ class PuzzlesTest {
   @ParameterizedTest
   @MethodSource
   void checkExample(SolutionInfo info) throws InvocationTargetException, IllegalAccessException {
-    assertEquals(
-        info.exampleValue(), info.method().invoke(null, exampleForDay(info.day())).toString());
+    var start = System.currentTimeMillis();
+    var got = info.method().invoke(null, exampleForDay(info.day()));
+    var end = System.currentTimeMillis();
+    assertEquals(info.exampleValue(), got.toString());
+    System.out.println(
+        "Day " + info.day() + " part " + info.part() + " example: " + (end - start) + "ms");
   }
 
   @ParameterizedTest
   @MethodSource
   void checkSolution(SolutionInfo info) throws InvocationTargetException, IllegalAccessException {
-    assertEquals(
-        info.expectedValue(), info.method().invoke(null, inputForDay(info.day())).toString());
+    var start = System.currentTimeMillis();
+    var got = info.method().invoke(null, inputForDay(info.day())).toString();
+    var end = System.currentTimeMillis();
+    assertEquals(info.expectedValue(), got);
+    System.out.println("Day " + info.day() + " part " + info.part() + ": " + (end - start) + "ms");
   }
 }
