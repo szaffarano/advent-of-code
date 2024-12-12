@@ -1,37 +1,35 @@
 package ar.zaffa.aoc.common;
 
+import static ar.zaffa.aoc.common.Direction.DOWN;
+import static ar.zaffa.aoc.common.Direction.DOWN_LEFT;
+import static ar.zaffa.aoc.common.Direction.DOWN_RIGHT;
+import static ar.zaffa.aoc.common.Direction.LEFT;
+import static ar.zaffa.aoc.common.Direction.RIGHT;
+import static ar.zaffa.aoc.common.Direction.UP;
+import static ar.zaffa.aoc.common.Direction.UP_LEFT;
+import static ar.zaffa.aoc.common.Direction.UP_RIGHT;
+
+import ar.zaffa.aoc.exceptions.AOCException;
+
 public record Point(int x, int y) {
   public Point up() {
-    return move(0, -1);
+    return move(UP);
   }
 
   public Point down() {
-    return move(0, 1);
+    return move(DOWN);
   }
 
   public Point left() {
-    return move(-1, 0);
+    return move(LEFT);
   }
 
   public Point right() {
-    return move(1, 0);
+    return move(RIGHT);
   }
 
   public Point move(Direction direction) {
-    return switch (direction) {
-      case UP -> up();
-      case DOWN -> down();
-      case LEFT -> left();
-      case RIGHT -> right();
-      case UP_LEFT -> up().left();
-      case UP_RIGHT -> up().right();
-      case DOWN_LEFT -> down().left();
-      case DOWN_RIGHT -> down().right();
-    };
-  }
-
-  private Point move(int x, int y) {
-    return new Point(this.x + x, this.y + y);
+    return new Point(x + direction.x, y + direction.y);
   }
 
   public Point minus(Point other) {
@@ -46,8 +44,37 @@ public record Point(int x, int y) {
     return y < other.y || x < other.x;
   }
 
+  @SuppressWarnings("unused")
   public boolean greaterThan(Point other) {
     return y > other.y || x > other.x;
+  }
+
+  public Direction directionOf(Point p2) {
+    if (x > p2.x) {
+      if (y > p2.y) {
+        return UP_LEFT;
+      } else if (y < p2.y) {
+        return DOWN_LEFT;
+      } else {
+        return LEFT;
+      }
+    } else if (x < p2.x) {
+      if (y > p2.y) {
+        return UP_RIGHT;
+      } else if (y < p2.y) {
+        return DOWN_RIGHT;
+      } else {
+        return RIGHT;
+      }
+    } else {
+      if (y > p2.y) {
+        return UP;
+      } else if (y < p2.y) {
+        return DOWN;
+      } else {
+        throw new AOCException("Points are the same");
+      }
+    }
   }
 
   public static class PointComparator implements java.util.Comparator<Point> {
