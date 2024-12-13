@@ -4,47 +4,60 @@ import static ar.zaffa.aoc.annotations.Solution.Day.DAY13;
 import static ar.zaffa.aoc.annotations.Solution.Part.PART1;
 import static ar.zaffa.aoc.annotations.Solution.Part.PART2;
 import static ar.zaffa.aoc.common.PuzzleUtils.lines;
-import static java.lang.Integer.parseInt;
+import static java.lang.Long.parseLong;
 
 import ar.zaffa.aoc.annotations.Solution;
-import ar.zaffa.aoc.common.Point;
+import ar.zaffa.aoc.common.Pair;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 @SuppressWarnings("unused")
 public class Day13 {
   private Day13() {}
 
   @Solution(day = DAY13, part = PART1, example = "480", expected = "25629")
-  public static int part1(Path input) {
+  public static long part1(Path input) {
+    var machines = parseInput(input);
+    return machines.stream()
+        .flatMap(Day13::prices)
+        .mapToLong(move -> move.timesA * 3 + move.timesB)
+        .sum();
+  }
+
+  @Solution(day = DAY13, part = PART2, example = "875318608908", expected = "107487112929999")
+  public static long part2(Path input) {
     var machines = parseInput(input);
     return machines.stream()
         .map(
             machine ->
-                prices(machine).stream().mapToInt(move -> move.timesA * 3 + move.timesB).sum())
-        .reduce(Integer::sum)
-        .orElse(0);
+                new Machine(
+                    machine.buttonA,
+                    machine.buttonB,
+                    new Pair<>(
+                        machine.prize.a() + 10000000000000L, machine.prize.b() + 10000000000000L)))
+        .flatMap(Day13::prices)
+        .mapToLong(move -> move.timesA * 3 + move.timesB)
+        .sum();
   }
 
-  @Solution(day = DAY13, part = PART2)
-  public static int part2(Path input) {
-    return 0;
-  }
+  private static Stream<Move> prices(Machine machine) {
+    var timesB =
+        (machine.prize.b() * machine.buttonA.a() - machine.prize.a() * machine.buttonA.b())
+            / (machine.buttonB.b() * machine.buttonA.a()
+                - machine.buttonB.a() * machine.buttonA.b());
+    var modTimesB =
+        (machine.prize.b() * machine.buttonA.a() - machine.prize.a() * machine.buttonA.b())
+            % (machine.buttonB.b() * machine.buttonA.a()
+                - machine.buttonB.a() * machine.buttonA.b());
 
-  private static List<Move> prices(Machine machine) {
-    var moves = new ArrayList<Move>();
-    for (int i = 0; i < 100; i++) {
-      for (int j = 0; j < 100; j++) {
-        var move = new Move(i, j);
-        var position = machine.move(move);
-        if (position.equals(machine.prize)) {
-          moves.add(move);
-        }
-      }
-    }
-    return moves;
+    var timesA = (machine.prize.a() - (timesB * machine.buttonB.a())) / machine.buttonA.a();
+    var modTimesA = (machine.prize.a() - (timesB * machine.buttonB.a())) % machine.buttonA.a();
+
+    return modTimesA == 0 && modTimesB == 0 ? Stream.of(new Move(timesA, timesB)) : Stream.of();
   }
 
   private static List<Machine> parseInput(Path input) {
@@ -56,37 +69,37 @@ public class Day13 {
     var buttonsPattern = Pattern.compile("Button (?<button>[AB]): X\\+(?<x>\\d+), Y\\+(?<y>\\d+)");
     var prizePattern = Pattern.compile("Prize: X=(?<x>\\d+), Y=(?<y>\\d+)");
     var machines = new ArrayList<Machine>();
-    final Point[] buttonA = {null};
-    final Point[] buttonB = {null};
-    final Point[] prize = {null};
+    final var buttonA = new AtomicReference<Pair<Long, Long>>();
+    final var buttonB = new AtomicReference<Pair<Long, Long>>();
+    final var prize = new AtomicReference<Pair<Long, Long>>();
     lines(input)
         .forEach(
             line -> {
               var b = buttonsPattern.matcher(line);
               var p = prizePattern.matcher(line);
               if (b.matches()) {
-                var button = new Point(parseInt(b.group("x")), parseInt(b.group("y")));
+                var button = new Pair<>(parseLong(b.group("x")), parseLong(b.group("y")));
                 switch (b.group("button")) {
-                  case "A" -> buttonA[0] = button;
-                  case "B" -> buttonB[0] = button;
+                  case "A" -> buttonA.set(button);
+                  case "B" -> buttonB.set(button);
                   default ->
                       throw new IllegalArgumentException("Invalid button: " + b.group("button"));
                 }
               } else if (p.matches()) {
-                prize[0] = new Point(parseInt(p.group("x")), parseInt(p.group("y")));
-                machines.add(new Machine(buttonA[0], buttonB[0], prize[0]));
+                prize.set(new Pair<>(parseLong(p.group("x")), parseLong(p.group("y"))));
+                machines.add(new Machine(buttonA.get(), buttonB.get(), prize.get()));
               }
             });
     return machines;
   }
 
-  record Move(int timesA, int timesB) {}
+  record Move(long timesA, long timesB) {}
 
-  record Machine(Point buttonA, Point buttonB, Point prize) {
-    public Point move(Move move) {
-      return new Point(
-          buttonA.x() * move.timesA + buttonB.x() * move.timesB,
-          buttonA.y() * move.timesA + buttonB.y() * move.timesB);
+  record Machine(Pair<Long, Long> buttonA, Pair<Long, Long> buttonB, Pair<Long, Long> prize) {
+    public Pair<Long, Long> move(Move move) {
+      return new Pair<>(
+          buttonA.a() * move.timesA + buttonB.a() * move.timesB,
+          buttonA.b() * move.timesA + buttonB.b() * move.timesB);
     }
   }
 }
