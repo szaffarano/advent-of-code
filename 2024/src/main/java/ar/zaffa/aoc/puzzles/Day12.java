@@ -4,6 +4,7 @@ import static ar.zaffa.aoc.annotations.Solution.Day.DAY12;
 import static ar.zaffa.aoc.annotations.Solution.Part.PART1;
 import static ar.zaffa.aoc.annotations.Solution.Part.PART2;
 import static ar.zaffa.aoc.common.PuzzleUtils.matrix;
+import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.IntStream.range;
 
 import ar.zaffa.aoc.annotations.Solution;
@@ -13,7 +14,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @SuppressWarnings("unused")
@@ -23,7 +23,7 @@ public class Day12 {
   @Solution(day = DAY12, part = PART1, example = "1930", expected = "1518548")
   public static int part1(Path input) {
     var map = parseInput(input);
-    var mapByType = map.points().collect(Collectors.groupingBy(map::get));
+    var mapByType = map.points().collect(groupingBy(map::get));
 
     return mapByType.entrySet().stream()
         .flatMap(e -> regions(map, e.getValue()))
@@ -41,95 +41,56 @@ public class Day12 {
   @Solution(day = DAY12, part = PART2, example = "1206", expected = "909564")
   public static int part2(Path input) {
     var map = parseInput(input);
-    var mapByType = map.points().collect(Collectors.groupingBy(map::get));
+    var mapByType = map.points().collect(groupingBy(map::get));
 
-    var regions = mapByType.entrySet().stream().flatMap(e -> regions(map, e.getValue()));
-
-    return regions
-        .map(
-            region -> {
-              var minX = region.stream().mapToInt(Point::x).min().orElseThrow();
-              var maxX = region.stream().mapToInt(Point::x).max().orElseThrow();
-              var minY = region.stream().mapToInt(Point::y).min().orElseThrow();
-              var maxY = region.stream().mapToInt(Point::y).max().orElseThrow();
-
-              var type = map.get(region.getFirst());
-
-              var sides = new ArrayList<String>();
-              var tmpA = new StringBuilder();
-              var tmpB = new StringBuilder();
-              for (var y = minY; y <= maxY; y++) {
-                for (var x = minX; x <= maxX; x++) {
-                  var p = new Point(x, y);
-                  if (region.contains(p) && !region.contains(p.up())) {
-                    tmpA.append(type);
-                  } else {
-                    if (!tmpA.isEmpty()) {
-                      sides.add(tmpA.toString());
-                      tmpA = new StringBuilder();
-                    }
-                  }
-                  if (region.contains(p) && !region.contains(p.down())) {
-                    tmpB.append(type);
-                  } else {
-                    if (!tmpB.isEmpty()) {
-                      sides.add(tmpB.toString());
-                      tmpB = new StringBuilder();
-                    }
-                  }
-                }
-                if (!tmpB.isEmpty()) {
-                  sides.add(tmpB.toString());
-                  tmpB = new StringBuilder();
-                }
-                if (!tmpA.isEmpty()) {
-                  sides.add(tmpA.toString());
-                  tmpA = new StringBuilder();
-                }
-              }
-
-              for (var x = minX; x <= maxX; x++) {
-                for (var y = minY; y <= maxY; y++) {
-                  var p = new Point(x, y);
-                  if (region.contains(p) && !region.contains(p.left())) {
-                    tmpA.append(type);
-                  } else {
-                    if (!tmpA.isEmpty()) {
-                      sides.add(tmpA.toString());
-                      tmpA = new StringBuilder();
-                    }
-                  }
-                  if (region.contains(p) && !region.contains(p.right())) {
-                    tmpB.append(type);
-                  } else {
-                    if (!tmpB.isEmpty()) {
-                      sides.add(tmpB.toString());
-                      tmpB = new StringBuilder();
-                    }
-                  }
-                }
-                if (!tmpB.isEmpty()) {
-                  sides.add(tmpB.toString());
-                }
-                if (!tmpA.isEmpty()) {
-                  sides.add(tmpA.toString());
-                }
-                tmpB = new StringBuilder();
-                tmpA = new StringBuilder();
-              }
-
-              return sides.size() * region.size();
-            })
+    return mapByType.entrySet().stream()
+        .flatMap(e -> regions(map, e.getValue()))
+        .map(region -> priceForRegion(region, map))
         .reduce(0, Integer::sum);
   }
 
-  private static int tokens(String raw) {
-    return raw.replace(' ', '\n')
-        .lines()
-        .map(String::strip)
-        .filter(s -> !s.isBlank())
-        .toList()
-        .size();
+  private static int priceForRegion(List<Point> region, Map map) {
+    var sides = 0;
+    var buff1 = new StringBuilder();
+    var buff2 = new StringBuilder();
+    for (var y = 0; y <= map.map.height(); y++) {
+      for (var x = 0; x <= map.map.width(); x++) {
+        var p = new Point(x, y);
+        sides += updateBuffer(p, p.up(), region, buff1);
+        sides += updateBuffer(p, p.down(), region, buff2);
+      }
+      sides += flushBuffer(buff1);
+      sides += flushBuffer(buff2);
+    }
+
+    for (var x = 0; x <= map.map.width(); x++) {
+      for (var y = 0; y <= map.map.height(); y++) {
+        var p = new Point(x, y);
+        sides += updateBuffer(p, p.left(), region, buff1);
+        sides += updateBuffer(p, p.right(), region, buff2);
+      }
+      sides += flushBuffer(buff1);
+      sides += flushBuffer(buff2);
+    }
+
+    return sides * region.size();
+  }
+
+  private static int updateBuffer(Point curr, Point next, List<Point> region, StringBuilder buff) {
+    if (region.contains(curr) && !region.contains(next)) {
+      buff.append(' ');
+    } else {
+      return flushBuffer(buff);
+    }
+    return 0;
+  }
+
+  private static int flushBuffer(StringBuilder buff) {
+    if (!buff.isEmpty()) {
+      buff.delete(0, buff.length());
+      return 1;
+    }
+    return 0;
   }
 
   // return a stream of points that are adjacent to the given point and have the same type
@@ -176,11 +137,11 @@ public class Day12 {
     return region;
   }
 
-  static Map parseInput(Path input) {
+  private static Map parseInput(Path input) {
     return new Map(matrix(input));
   }
 
-  record Map(Matrix map) {
+  private record Map(Matrix map) {
     public char get(Point p) {
       return map.get(p);
     }
