@@ -49,15 +49,11 @@ public class Day13 {
         (machine.prize.b() * machine.buttonA.a() - machine.prize.a() * machine.buttonA.b())
             / (machine.buttonB.b() * machine.buttonA.a()
                 - machine.buttonB.a() * machine.buttonA.b());
-    var modTimesB =
-        (machine.prize.b() * machine.buttonA.a() - machine.prize.a() * machine.buttonA.b())
-            % (machine.buttonB.b() * machine.buttonA.a()
-                - machine.buttonB.a() * machine.buttonA.b());
-
     var timesA = (machine.prize.a() - (timesB * machine.buttonB.a())) / machine.buttonA.a();
-    var modTimesA = (machine.prize.a() - (timesB * machine.buttonB.a())) % machine.buttonA.a();
 
-    return modTimesA == 0 && modTimesB == 0 ? Stream.of(new Move(timesA, timesB)) : Stream.of();
+    var move = new Move(timesA, timesB);
+
+    return machine.won(move) ? Stream.of(move) : Stream.of();
   }
 
   private static List<Machine> parseInput(Path input) {
@@ -96,6 +92,11 @@ public class Day13 {
   record Move(long timesA, long timesB) {}
 
   record Machine(Pair<Long, Long> buttonA, Pair<Long, Long> buttonB, Pair<Long, Long> prize) {
+
+    public boolean won(Move move) {
+      return move(move).equals(prize);
+    }
+
     public Pair<Long, Long> move(Move move) {
       return new Pair<>(
           buttonA.a() * move.timesA + buttonB.a() * move.timesB,
