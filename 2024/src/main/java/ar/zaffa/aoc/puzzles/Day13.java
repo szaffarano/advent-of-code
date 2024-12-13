@@ -23,7 +23,7 @@ public class Day13 {
   public static long part1(Path input) {
     var machines = parseInput(input);
     return machines.stream()
-        .flatMap(Day13::prices)
+        .flatMap(Day13::prizes)
         .mapToLong(move -> move.timesA * 3 + move.timesB)
         .sum();
   }
@@ -39,12 +39,12 @@ public class Day13 {
                     machine.buttonB,
                     new Pair<>(
                         machine.prize.a() + 10000000000000L, machine.prize.b() + 10000000000000L)))
-        .flatMap(Day13::prices)
+        .flatMap(Day13::prizes)
         .mapToLong(move -> move.timesA * 3 + move.timesB)
         .sum();
   }
 
-  private static Stream<Move> prices(Machine machine) {
+  private static Stream<Move> prizes(Machine machine) {
     var timesB =
         (machine.prize.b() * machine.buttonA.a() - machine.prize.a() * machine.buttonA.b())
             / (machine.buttonB.b() * machine.buttonA.a()
