@@ -12,6 +12,8 @@ import ar.zaffa.aoc.common.Pair;
 import ar.zaffa.aoc.common.Point;
 import ar.zaffa.aoc.exceptions.AOCException;
 import java.nio.file.Path;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @SuppressWarnings("unused")
@@ -19,60 +21,56 @@ public class Day14 {
   private Day14() {}
 
   @Solution(day = DAY14, part = PART1, example = "21", expected = "216027840")
-  public static long part1(Path input) {
-    var robots = robots(input).toList().toArray(new Robot[0]);
-
+  public static int part1(Path input) {
     var limit = new Point(101, 103);
     var time = 100;
-    for (int i = 0; i < time; i++) {
-      for (int j = 0; j < robots.length; j++) {
-        robots[j] = move(robots[j], limit);
-      }
-    }
+    var positions = robots(input).map(r -> r.move(limit, time)).map(Robot::position).toList();
+
     var midX = limit.x() / 2;
     var midY = limit.y() / 2;
-
     var cuadOne = 0;
     var cuadTwo = 0;
     var cuadThree = 0;
     var cuadFour = 0;
-    for (int i = 0; i < robots.length; i++) {
-      var robot = robots[i];
-      if (robot.position().x() < midX && robot.position().y() < midY) {
+    for (var position : positions) {
+      if (position.x() < midX && position.y() < midY) {
         cuadOne++;
-      } else if (robot.position().x() > midX && robot.position().y() < midY) {
+      } else if (position.x() > midX && position.y() < midY) {
         cuadTwo++;
-      } else if (robot.position().x() < midX && robot.position().y() > midY) {
+      } else if (position.x() < midX && position.y() > midY) {
         cuadThree++;
-      } else if (robot.position().x() > midX && robot.position().y() > midY) {
+      } else if (position.x() > midX && position.y() > midY) {
         cuadFour++;
       }
     }
     return cuadOne * cuadTwo * cuadThree * cuadFour;
   }
 
-  @Solution(day = DAY14, part = PART2)
+  @Solution(day = DAY14, part = PART2, example = "1", expected = "6876")
   public static long part2(Path input) {
-    return 0;
-  }
+    var robots = robots(input).toList();
+    var limit = new Point(101, 103);
+    var time = new AtomicInteger(0);
 
-  static Robot move(Robot robot, Point limit) {
-    var x = robot.position().x() + robot.velocity().a();
-    var y = robot.position().y() + robot.velocity().b();
-    return robot.copy(position(x, limit.x()), position(y, limit.y()));
-  }
-
-  static int position(int actual, int limit) {
-    if (actual < 0) {
-      return limit + actual;
-    } else if (actual >= limit) {
-      return actual - limit;
+    while (true) {
+      time.incrementAndGet();
+      var uniquePositions =
+          robots.stream()
+              .map(r -> r.move(limit, time.get()))
+              .map(Robot::position)
+              .collect(Collectors.toSet())
+              .size();
+      // all robots are in unique positions
+      if (uniquePositions == robots.size()) {
+        return time.get();
+      }
     }
-    return actual;
   }
 
   record Robot(Point position, Pair<Integer, Integer> velocity) {
-    Robot copy(int x, int y) {
+    Robot move(Point limit, int times) {
+      var x = (position.x() + times * (velocity.a() + limit.x())) % limit.x();
+      var y = (position.y() + times * (velocity.b() + limit.y())) % limit.y();
       return new Robot(new Point(x, y), velocity);
     }
   }
