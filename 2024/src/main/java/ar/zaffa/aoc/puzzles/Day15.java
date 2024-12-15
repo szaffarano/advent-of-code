@@ -3,20 +3,20 @@ package ar.zaffa.aoc.puzzles;
 import static ar.zaffa.aoc.annotations.Solution.Day.DAY15;
 import static ar.zaffa.aoc.annotations.Solution.Part.PART1;
 import static ar.zaffa.aoc.annotations.Solution.Part.PART2;
-import static ar.zaffa.aoc.common.Direction.DOWN;
 import static ar.zaffa.aoc.common.Direction.LEFT;
 import static ar.zaffa.aoc.common.Direction.RIGHT;
-import static ar.zaffa.aoc.common.Direction.UP;
 import static ar.zaffa.aoc.common.PuzzleUtils.lines;
 import static ar.zaffa.aoc.puzzles.Day15.MapPartOne.BOX_CHAR;
+import static ar.zaffa.aoc.puzzles.Day15.MapPartOne.EMPTY_CHAR;
 import static ar.zaffa.aoc.puzzles.Day15.MapPartOne.ROBOT_CHAR;
+import static ar.zaffa.aoc.puzzles.Day15.MapPartOne.WALL_CHAR;
 import static java.util.stream.IntStream.range;
 
 import ar.zaffa.aoc.annotations.Solution;
 import ar.zaffa.aoc.common.Direction;
 import ar.zaffa.aoc.common.Matrix;
-import ar.zaffa.aoc.common.Pair;
 import ar.zaffa.aoc.common.Point;
+import ar.zaffa.aoc.exceptions.AOCException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@SuppressWarnings("unused")
+// @SuppressWarnings("unused")
 public class Day15 {
   private Day15() {}
 
@@ -49,7 +49,15 @@ public class Day15 {
 
   @Solution(day = DAY15, part = PART2, example = "9021", expected = "1397393")
   public static long part2(Path input) {
-    var document = parseDocumentPartTwo(input);
+    var mappings =
+        java.util.Map.of(
+            '#', new char[] {'#', '#'},
+            '@', new char[] {'@', '.'},
+            'O', new char[] {'[', ']'});
+    var defaultValue = new char[] {'.', '.'};
+    var box = List.of('[', ']');
+
+    var document = parseDocumentPartTwo(input, mappings, defaultValue, box);
 
     for (var m : document.movements) {
       document.map.moveRobot(m);
@@ -90,7 +98,12 @@ public class Day15 {
         movements);
   }
 
-  static Document parseDocumentPartTwo(Path input) {
+  static Document parseDocumentPartTwo(
+      Path input,
+      java.util.Map<Character, char[]> mappings,
+      char[] defaultValue,
+      List<Character> box) {
+
     var matrix = new LinkedList<String>();
     var movements = new LinkedList<Movement>();
     Robot robot = null;
@@ -110,14 +123,8 @@ public class Day15 {
         var newLine =
             line.chars()
                 .boxed()
-                .map(
-                    n ->
-                        switch ((char) n.intValue()) {
-                          case 'O' -> "[]";
-                          case '#' -> "##";
-                          case '@' -> "@.";
-                          default -> "..";
-                        })
+                .map(n -> mappings.getOrDefault((char) n.intValue(), defaultValue))
+                .map(String::new)
                 .collect(Collectors.joining());
 
         matrix.add(newLine);
@@ -125,7 +132,9 @@ public class Day15 {
     }
     return new Document(
         new MapPartTwo(
-            robot, new Matrix(matrix.stream().map(String::toCharArray).toArray(char[][]::new))),
+            robot,
+            new Matrix(matrix.stream().map(String::toCharArray).toArray(char[][]::new)),
+            box),
         movements);
   }
 
@@ -166,6 +175,7 @@ public class Day15 {
     public static final Character WALL_CHAR = '#';
     public static final Character ROBOT_CHAR = '@';
     public static final Character BOX_CHAR = 'O';
+    public static final Character EMPTY_CHAR = '.';
 
     MapPartOne(Robot robot, Matrix matrix) {
       super(robot, matrix);
@@ -205,8 +215,26 @@ public class Day15 {
   }
 
   static class MapPartTwo extends Map {
-    MapPartTwo(Robot robot, Matrix matrix) {
+
+    private final List<Character> box;
+
+    MapPartTwo(Robot robot, Matrix matrix, List<Character> box) {
       super(robot, matrix);
+      this.box = box;
+    }
+
+    List<Point> collect(Point start, Direction d, char stop) {
+      var points = new ArrayList<Point>();
+      var p = start;
+      while (matrix.isInside(p) && matrix.get(p) != stop) {
+        points.add(p);
+        p = p.move(d);
+      }
+      if (matrix.isOutOfBoundsFor(p) || matrix.get(p) != stop) {
+        throw new AOCException("Invalid box");
+      }
+      points.add(p);
+      return points;
     }
 
     List<List<Point>> boxes(Point start, Direction direction) {
@@ -220,26 +248,12 @@ public class Day15 {
         Set<Point> row = new HashSet<>();
         Set<Point> next = new HashSet<>();
         for (var p : points) {
+          row.addAll(collect(p, LEFT, box.getFirst()));
+          row.addAll(collect(p, RIGHT, box.getLast()));
           row.add(p);
-          if (isBox(p.move(LEFT)) && matrix.get(p.move(LEFT)) == '[') {
-            var n = p.move(LEFT);
-            row.add(n);
-            if (isBox(n.move(direction))) {
-              next.add(n.move(direction));
-            }
-          }
-          if (isBox(p.move(RIGHT)) && matrix.get(p.move(RIGHT)) == ']') {
-            var n = p.move(RIGHT);
-            row.add(n);
-            if (isBox(n.move(direction))) {
-              next.add(n.move(direction));
-            }
-          }
-          if (isBox(p.move(direction))) {
-            next.add(p.move(direction));
-          }
         }
         found.add(row.stream().toList());
+        row.stream().map(p -> p.move(direction)).filter(this::isBox).forEach(next::add);
         if (!next.isEmpty()) {
           stack.add(next.stream().toList());
         }
@@ -248,73 +262,57 @@ public class Day15 {
       return found;
     }
 
-    /*
-     *[][][].#
-     * ..[]...#
-     *  [][]...#
-     *   .
-     * @[][][].#
-     *   [][]...#
-     *    [][]...#
-     *
-     * 3456789
-     *   @[].. -> r = 5, s = 8 --> [8,7,6,5]        -> s .. (s-r) -> [8,7,6,5] = 8 .. (8-5) = 8 .. 3
-     *
-     * 123456789
-     *   ..[]@ -> r = 7, s = 4 --> [4,5,6,7]        -> s .. (s-r) -> [4,5,6,7] = 4 .. (4-7) = 4 .. -3
-     *
-     * []
-     * .
-     */
     @Override
     public void moveRobot(Movement m) {
       var nextPosition = robot.move(m.direction);
       if (isFree(nextPosition)) {
-        matrix.set(robot.position, '.');
+        matrix.set(robot.position, EMPTY_CHAR);
         matrix.set(nextPosition, ROBOT_CHAR);
         robot = new Robot(nextPosition);
       } else if (isBox(nextPosition)) {
-        if (horizontalMovement(m)) {
-          var spot = nextFreeSpotHorizontal(nextPosition, m.direction);
-          if (spot != null) {
-            var step = spot.x() > robot.position.x() ? -1 : 1;
-            for (var x = spot.x(); x != robot.position.x(); x += step) {
-              matrix.set(new Point(x, spot.y()), matrix.get(new Point(x + step, nextPosition.y())));
-            }
-            matrix.set(robot.position, '.');
-            matrix.set(nextPosition, ROBOT_CHAR);
-            robot = new Robot(nextPosition);
-          }
+        if (isHorizontalMovement(m)) {
+          horizontalMovement(m, nextPosition);
         } else {
-          var boxes = boxes(nextPosition, m.direction);
-          //                    var spot = nextFreeSpotVertical(nextPosition, m.direction);
-          var canMove =
-              !boxes.reversed().stream()
-                  .anyMatch(
-                      row -> {
-                        return row.stream()
-                            .anyMatch(
-                                p -> {
-                                  return matrix.isOutOfBoundsFor(p) || isWall(p.move(m.direction));
-                                });
-                      });
-          if (canMove) {
-            boxes
-                .reversed()
-                .forEach(
-                    row -> {
-                      row.forEach(
-                          p -> {
-                            var next = p.move(m.direction);
-                            var old = matrix.set(next, matrix.get(p));
-                            matrix.set(p, old);
-                          });
-                    });
-            matrix.set(robot.position, '.');
-            robot = new Robot(robot.position.move(m.direction));
-            matrix.set(robot.position, ROBOT_CHAR);
-          }
+          verticalMovement(m, nextPosition);
         }
+      }
+    }
+
+    private void verticalMovement(Movement m, Point nextPosition) {
+      var boxesToMove = boxes(nextPosition, m.direction);
+      var canMove =
+          boxesToMove.reversed().stream()
+              .noneMatch(
+                  row ->
+                      row.stream()
+                          .anyMatch(
+                              p -> matrix.isOutOfBoundsFor(p) || isWall(p.move(m.direction))));
+      if (canMove) {
+        boxesToMove
+            .reversed()
+            .forEach(
+                row ->
+                    row.forEach(
+                        p -> {
+                          var old = matrix.set(p.move(m.direction), matrix.get(p));
+                          matrix.set(p, old);
+                        }));
+        matrix.set(robot.position, EMPTY_CHAR);
+        robot = new Robot(robot.position.move(m.direction));
+        matrix.set(robot.position, ROBOT_CHAR);
+      }
+    }
+
+    private void horizontalMovement(Movement m, Point nextPosition) {
+      var spot = nextFreeSpotHorizontal(nextPosition, m.direction);
+      if (spot != null) {
+        var step = spot.x() > robot.position.x() ? -1 : 1;
+        for (var x = spot.x(); x != robot.position.x(); x += step) {
+          matrix.set(new Point(x, spot.y()), matrix.get(new Point(x + step, nextPosition.y())));
+        }
+        matrix.set(robot.position, EMPTY_CHAR);
+        matrix.set(nextPosition, ROBOT_CHAR);
+        robot = new Robot(nextPosition);
       }
     }
 
@@ -330,69 +328,20 @@ public class Day15 {
       return tmp;
     }
 
-    private Pair<Point, Point> nextFreeSpotVertical(Point p, Direction direction) {
-      var left = leftLimit(p);
-      var right = rightLimit(p);
-      while (isSafe(left.move(direction), right.move(direction)) && matrix.isInside(left)) {
-        left = leftLimit(left.move(direction));
-        right = rightLimit(right.move(direction));
-      }
-      return isSafe(left, right) ? new Pair<>(left, right) : null;
-      /*            if (matrix.isOutOfBoundsFor(left)) {
-          return null;
-      } else {
-          for (var i = left.x(); i <= right.x(); i++) {
-              if (isWall(new Point(i, left.y()))) {
-                  return null;
-              }
-          }
-          return new Pair<>(left, right);
-      }*/
-    }
-
-    private Point leftLimit(Point p) {
-      return switch (matrix.get(p)) {
-        case '[' -> p;
-        case ']' -> p.move(LEFT);
-        default -> p;
-      };
-    }
-
-    private Point rightLimit(Point p) {
-      return switch (matrix.get(p)) {
-        case '[' -> p.move(RIGHT);
-        case ']' -> p;
-        default -> p;
-      };
-    }
-
-    private boolean isSafe(Point left, Point right) {
-      if (matrix.isOutOfBoundsFor(left) || matrix.isOutOfBoundsFor(right)) {
-        return false;
-      }
-      return range(left.x(), right.x() + 1)
-          .mapToObj(x -> new Point(x, left.y()))
-          .noneMatch(this::isWall);
-    }
-
     boolean isWall(Point p) {
-      return matrix.isInside(p) && matrix.get(p) == '#';
+      return matrix.isInside(p) && matrix.get(p) == WALL_CHAR;
     }
 
     boolean isBox(Point p) {
-      return matrix.isInside(p) && List.of('[', ']').contains(matrix.get(p));
+      return matrix.isInside(p) && box.contains(matrix.get(p));
     }
 
     boolean isFree(Point p) {
-      return matrix.isInside(p) && matrix.get(p) == '.';
+      return matrix.isInside(p) && matrix.get(p) == EMPTY_CHAR;
     }
 
-    boolean horizontalMovement(Movement m) {
+    boolean isHorizontalMovement(Movement m) {
       return List.of(Movement.LEFT, Movement.RIGHT).contains(m);
-    }
-
-    boolean verticalMovement(Movement m) {
-      return List.of(Movement.UP, Movement.DOWN).contains(m);
     }
   }
 
