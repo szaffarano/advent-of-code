@@ -6,10 +6,7 @@ import static ar.zaffa.aoc.annotations.Solution.Part.PART2;
 import static ar.zaffa.aoc.common.Direction.LEFT;
 import static ar.zaffa.aoc.common.Direction.RIGHT;
 import static ar.zaffa.aoc.common.PuzzleUtils.lines;
-import static ar.zaffa.aoc.puzzles.Day15.MapPartOne.BOX_CHAR;
-import static ar.zaffa.aoc.puzzles.Day15.MapPartOne.EMPTY_CHAR;
-import static ar.zaffa.aoc.puzzles.Day15.MapPartOne.ROBOT_CHAR;
-import static ar.zaffa.aoc.puzzles.Day15.MapPartOne.WALL_CHAR;
+import static ar.zaffa.aoc.puzzles.Day15.Area.ROBOT_CHAR;
 import static java.util.stream.IntStream.range;
 
 import ar.zaffa.aoc.annotations.Solution;
@@ -23,56 +20,52 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-// @SuppressWarnings("unused")
+@SuppressWarnings("unused")
 public class Day15 {
   private Day15() {}
 
   @Solution(day = DAY15, part = PART1, example = "10092", expected = "1398947")
   public static int part1(Path input) {
-    var document = parseDocumentPartOne(input);
-
-    for (var m : document.movements) {
-      document.map.moveRobot(m);
-    }
-    return range(0, document.map.matrix.height())
-        .boxed()
-        .flatMap(
-            y ->
-                range(0, document.map.matrix.width())
-                    .filter(x -> document.map.matrix.get(new Point(x, y)) == BOX_CHAR)
-                    .mapToObj(x -> 100 * y + x))
-        .reduce(0, Integer::sum);
+    return solution(parseDocument(input, Map.of(), List.of('O')));
   }
 
   @Solution(day = DAY15, part = PART2, example = "9021", expected = "1397393")
   public static long part2(Path input) {
     var mappings =
-        java.util.Map.of(
+        Map.of(
             '#', new char[] {'#', '#'},
             '@', new char[] {'@', '.'},
+            '.', new char[] {'.', '.'},
             'O', new char[] {'[', ']'});
-    var defaultValue = new char[] {'.', '.'};
     var box = List.of('[', ']');
+    return solution(parseDocument(input, mappings, box));
+  }
 
-    var document = parseDocumentPartTwo(input, mappings, defaultValue, box);
+  private static Integer solution(Document document) {
+    var area =
+        document.movements.stream()
+            .reduce(
+                document.area,
+                Area::moveRobot,
+                (a, b) -> {
+                  throw new AOCException("Not supported");
+                });
 
-    for (var m : document.movements) {
-      document.map.moveRobot(m);
-    }
-    return range(0, document.map.matrix.height())
+    return range(0, area.height())
         .boxed()
         .flatMap(
             y ->
-                range(0, document.map.matrix.width())
-                    .filter(x -> document.map.matrix.get(new Point(x, y)) == '[')
+                range(0, document.area.width())
+                    .filter(x -> document.area.get(new Point(x, y)) == document.area.box.getFirst())
                     .mapToObj(x -> 100 * y + x))
         .reduce(0, Integer::sum);
   }
 
-  static Document parseDocumentPartOne(Path input) {
+  static Document parseDocument(Path input, Map<Character, char[]> mappings, List<Character> box) {
     var matrix = new LinkedList<String>();
     var movements = new LinkedList<Movement>();
     Robot robot = null;
@@ -87,43 +80,19 @@ public class Day15 {
       } else {
         var idx = line.indexOf(ROBOT_CHAR);
         if (idx != -1) {
-          robot = new Robot(new Point(idx, i));
-        }
-        matrix.add(line);
-      }
-    }
-    return new Document(
-        new MapPartOne(
-            robot, new Matrix(matrix.stream().map(String::toCharArray).toArray(char[][]::new))),
-        movements);
-  }
-
-  static Document parseDocumentPartTwo(
-      Path input,
-      java.util.Map<Character, char[]> mappings,
-      char[] defaultValue,
-      List<Character> box) {
-
-    var matrix = new LinkedList<String>();
-    var movements = new LinkedList<Movement>();
-    Robot robot = null;
-    var movementSymbols = Arrays.stream(Movement.values()).map(m -> m.symbol).toList();
-
-    var lines = lines(input).filter(l -> !l.isBlank()).toList();
-    for (var i = 0; i < lines.size(); i++) {
-      var line = lines.get(i);
-      char c = line.charAt(0);
-      if (movementSymbols.contains(c)) {
-        movements.addAll(line.chars().mapToObj(m -> Movement.of((char) m)).toList());
-      } else {
-        var idx = line.indexOf(ROBOT_CHAR);
-        if (idx != -1) {
-          robot = new Robot(new Point(idx * 2, i));
+          robot = new Robot(new Point(idx * box.size(), i));
         }
         var newLine =
             line.chars()
                 .boxed()
-                .map(n -> mappings.getOrDefault((char) n.intValue(), defaultValue))
+                .map(
+                    n -> {
+                      if (mappings.containsKey((char) n.intValue())) {
+                        return mappings.get((char) n.intValue());
+                      } else {
+                        return new char[] {(char) n.intValue()};
+                      }
+                    })
                 .map(String::new)
                 .collect(Collectors.joining());
 
@@ -131,7 +100,7 @@ public class Day15 {
       }
     }
     return new Document(
-        new MapPartTwo(
+        new Area(
             robot,
             new Matrix(matrix.stream().map(String::toCharArray).toArray(char[][]::new)),
             box),
@@ -163,7 +132,7 @@ public class Day15 {
     }
   }
 
-  record Document(Map map, List<Movement> movements) {}
+  record Document(Area area, List<Movement> movements) {}
 
   record Robot(Point position) {
     public Point move(Direction direction) {
@@ -171,55 +140,19 @@ public class Day15 {
     }
   }
 
-  static class MapPartOne extends Map {
+  static class Area {
     public static final Character WALL_CHAR = '#';
     public static final Character ROBOT_CHAR = '@';
-    public static final Character BOX_CHAR = 'O';
     public static final Character EMPTY_CHAR = '.';
 
-    MapPartOne(Robot robot, Matrix matrix) {
-      super(robot, matrix);
-    }
-
-    @Override
-    public void moveRobot(Movement m) {
-      var nextPosition = robot.position.move(m.direction);
-      var nextChar = matrix.get(nextPosition);
-
-      if (nextChar != BOX_CHAR && nextChar != WALL_CHAR) {
-        matrix.set(robot.position, matrix.get(nextPosition));
-        matrix.set(nextPosition, ROBOT_CHAR);
-        robot = new Robot(nextPosition);
-      } else if (nextChar == BOX_CHAR) {
-        var freeSpot = nextFreeSpot(nextPosition, m.direction);
-        if (freeSpot != null) {
-          var free = matrix.set(freeSpot, matrix.get(nextPosition));
-          matrix.set(nextPosition, matrix.get(robot.position));
-          matrix.set(robot.position, free);
-          robot = new Robot(nextPosition);
-        }
-      }
-    }
-
-    private Point nextFreeSpot(Point p, Direction direction) {
-      var tmp = p;
-      while (matrix.get(tmp) == BOX_CHAR && matrix.isInside(tmp)) {
-        tmp = tmp.move(direction);
-      }
-      if (matrix.isOutOfBoundsFor(tmp) || matrix.get(tmp) == WALL_CHAR) {
-        // no room to move
-        return null;
-      }
-      return tmp;
-    }
-  }
-
-  static class MapPartTwo extends Map {
+    Robot robot;
+    final Matrix matrix;
 
     private final List<Character> box;
 
-    MapPartTwo(Robot robot, Matrix matrix, List<Character> box) {
-      super(robot, matrix);
+    Area(Robot robot, Matrix matrix, List<Character> box) {
+      this.robot = robot;
+      this.matrix = matrix;
       this.box = box;
     }
 
@@ -262,8 +195,7 @@ public class Day15 {
       return found;
     }
 
-    @Override
-    public void moveRobot(Movement m) {
+    public Area moveRobot(Movement m) {
       var nextPosition = robot.move(m.direction);
       if (isFree(nextPosition)) {
         matrix.set(robot.position, EMPTY_CHAR);
@@ -276,6 +208,7 @@ public class Day15 {
           verticalMovement(m, nextPosition);
         }
       }
+      return this;
     }
 
     private void verticalMovement(Movement m, Point nextPosition) {
@@ -343,18 +276,18 @@ public class Day15 {
     boolean isHorizontalMovement(Movement m) {
       return List.of(Movement.LEFT, Movement.RIGHT).contains(m);
     }
-  }
 
-  abstract static class Map {
-    protected Robot robot;
-    protected final Matrix matrix;
-
-    Map(Robot robot, Matrix matrix) {
-      this.robot = robot;
-      this.matrix = matrix;
+    public int height() {
+      return matrix.height();
     }
 
-    public abstract void moveRobot(Movement m);
+    public int width() {
+      return matrix.width();
+    }
+
+    public char get(Point point) {
+      return matrix.get(point);
+    }
 
     public String toString() {
       return range(0, matrix.height())
