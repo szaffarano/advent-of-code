@@ -57,4 +57,8 @@ public record Matrix(char[][] matrix) {
   public String toString() {
     return Arrays.toString(matrix);
   }
+
+  public char swap(Point p1, Point p2) {
+    return set(p1, set(p2, get(p1)));
+  }
 }

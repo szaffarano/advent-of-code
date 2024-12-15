@@ -17,11 +17,9 @@ import ar.zaffa.aoc.exceptions.AOCException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("unused")
@@ -48,6 +46,7 @@ public class Day15 {
   private static Integer solution(Document document) {
     var area =
         document.movements.stream()
+            .map(m -> m.direction)
             .reduce(
                 document.area,
                 Area::moveRobot,
@@ -150,13 +149,29 @@ public class Day15 {
 
     private final List<Character> box;
 
-    Area(Robot robot, Matrix matrix, List<Character> box) {
+    public Area(Robot robot, Matrix matrix, List<Character> box) {
       this.robot = robot;
       this.matrix = matrix;
       this.box = box;
     }
 
-    List<Point> collect(Point start, Direction d, char stop) {
+    public Area moveRobot(Direction direction) {
+      var nextPosition = robot.move(direction);
+      if (isFree(nextPosition)) {
+        matrix.set(robot.position, EMPTY_CHAR);
+        matrix.set(nextPosition, ROBOT_CHAR);
+        robot = new Robot(nextPosition);
+      } else if (isBox(nextPosition)) {
+        if (isHorizontalMovement(direction)) {
+          horizontalMovement(direction, nextPosition);
+        } else {
+          verticalMovement(direction, nextPosition);
+        }
+      }
+      return this;
+    }
+
+    private List<Point> collect(Point start, Direction d, char stop) {
       var points = new ArrayList<Point>();
       var p = start;
       while (matrix.isInside(p) && matrix.get(p) != stop) {
@@ -170,95 +185,64 @@ public class Day15 {
       return points;
     }
 
-    List<List<Point>> boxes(Point start, Direction direction) {
+    private List<List<Point>> boxes(Point start, Direction direction) {
       var stack = new LinkedList<List<Point>>();
       var found = new ArrayList<List<Point>>();
 
       stack.add(List.of(start));
 
-      while (!stack.isEmpty()) {
+      while (!stack.isEmpty() && !stack.peek().isEmpty()) {
         var points = stack.pop();
-        Set<Point> row = new HashSet<>();
-        Set<Point> next = new HashSet<>();
-        for (var p : points) {
-          row.addAll(collect(p, LEFT, box.getFirst()));
-          row.addAll(collect(p, RIGHT, box.getLast()));
-          row.add(p);
-        }
+
+        var row =
+            points.stream()
+                .flatMap(
+                    p -> {
+                      var collected = new LinkedList<Point>();
+                      collected.addAll(collect(p, LEFT, box.getFirst()));
+                      collected.addAll(collect(p, RIGHT, box.getLast()));
+                      collected.add(p);
+                      return collected.stream();
+                    })
+                .collect(Collectors.toSet());
+
         found.add(row.stream().toList());
-        row.stream().map(p -> p.move(direction)).filter(this::isBox).forEach(next::add);
-        if (!next.isEmpty()) {
-          stack.add(next.stream().toList());
-        }
+        var nextRow = row.stream().map(p -> p.move(direction)).filter(this::isBox).toList();
+        stack.add(nextRow);
       }
 
       return found;
     }
 
-    public Area moveRobot(Movement m) {
-      var nextPosition = robot.move(m.direction);
-      if (isFree(nextPosition)) {
-        matrix.set(robot.position, EMPTY_CHAR);
-        matrix.set(nextPosition, ROBOT_CHAR);
-        robot = new Robot(nextPosition);
-      } else if (isBox(nextPosition)) {
-        if (isHorizontalMovement(m)) {
-          horizontalMovement(m, nextPosition);
-        } else {
-          verticalMovement(m, nextPosition);
-        }
-      }
-      return this;
-    }
-
-    private void verticalMovement(Movement m, Point nextPosition) {
-      var boxesToMove = boxes(nextPosition, m.direction);
+    private void verticalMovement(Direction direction, Point nextPosition) {
+      var boxesToMove = boxes(nextPosition, direction).reversed();
       var canMove =
-          boxesToMove.reversed().stream()
-              .noneMatch(
-                  row ->
-                      row.stream()
-                          .anyMatch(
-                              p -> matrix.isOutOfBoundsFor(p) || isWall(p.move(m.direction))));
+          boxesToMove.stream()
+              .noneMatch(row -> row.stream().anyMatch(p -> isWall(p.move(direction))));
       if (canMove) {
-        boxesToMove
-            .reversed()
-            .forEach(
-                row ->
-                    row.forEach(
-                        p -> {
-                          var old = matrix.set(p.move(m.direction), matrix.get(p));
-                          matrix.set(p, old);
-                        }));
-        matrix.set(robot.position, EMPTY_CHAR);
-        robot = new Robot(robot.position.move(m.direction));
-        matrix.set(robot.position, ROBOT_CHAR);
+        boxesToMove.forEach(row -> row.forEach(p -> matrix.swap(p, p.move(direction))));
+        matrix.swap(robot.position, nextPosition);
+        robot = new Robot(nextPosition);
       }
     }
 
-    private void horizontalMovement(Movement m, Point nextPosition) {
-      var spot = nextFreeSpotHorizontal(nextPosition, m.direction);
+    private void horizontalMovement(Direction direction, Point nextPosition) {
+      var spot = nextFreeSpotHorizontal(nextPosition, direction);
       if (spot != null) {
         var step = spot.x() > robot.position.x() ? -1 : 1;
         for (var x = spot.x(); x != robot.position.x(); x += step) {
-          matrix.set(new Point(x, spot.y()), matrix.get(new Point(x + step, nextPosition.y())));
+          matrix.swap(new Point(x, spot.y()), new Point(x + step, nextPosition.y()));
         }
-        matrix.set(robot.position, EMPTY_CHAR);
-        matrix.set(nextPosition, ROBOT_CHAR);
         robot = new Robot(nextPosition);
       }
     }
 
-    private Point nextFreeSpotHorizontal(Point p, Direction direction) {
-      var tmp = p;
-      while (isBox(tmp) && matrix.isInside(tmp)) {
-        tmp = tmp.move(direction);
+    private Point nextFreeSpotHorizontal(Point start, Direction direction) {
+      var next = start;
+      while (isBox(next) && matrix.isInside(next)) {
+        next = next.move(direction);
       }
-      if (matrix.isOutOfBoundsFor(tmp) || isWall(tmp)) {
-        // no room to move
-        return null;
-      }
-      return tmp;
+      return isFree(next) || isBox(next) ? next : null;
     }
 
     boolean isWall(Point p) {
@@ -273,8 +257,8 @@ public class Day15 {
       return matrix.isInside(p) && matrix.get(p) == EMPTY_CHAR;
     }
 
-    boolean isHorizontalMovement(Movement m) {
-      return List.of(Movement.LEFT, Movement.RIGHT).contains(m);
+    boolean isHorizontalMovement(Direction direction) {
+      return List.of(LEFT, RIGHT).contains(direction);
     }
 
     public int height() {
