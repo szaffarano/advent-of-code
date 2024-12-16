@@ -15,9 +15,10 @@ import ar.zaffa.aoc.common.Point;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -27,16 +28,20 @@ public class Day16 {
 
   @Solution(day = DAY16, part = PART1, example = "11048", expected = "95444")
   public static int part1(Path input) {
-    return getMazeMap(input).solutions().keySet().stream().min(Integer::compareTo).orElseThrow();
+    return getMazeMap(input).solutions().a();
   }
 
   @Solution(day = DAY16, part = PART2, example = "64", expected = "513")
   public static long part2(Path input) {
-    var map = getMazeMap(input);
-    var solutions = map.solutions();
-    var min = solutions.keySet().stream().min(Integer::compareTo).orElseThrow();
-    var paths = map.solutions().get(min).stream().flatMap(List::stream).collect(Collectors.toSet());
-    return paths.size() + 1L;
+    var solutions = getMazeMap(input).solutions();
+
+    var optimalPaths = solutions.b();
+
+    // get the unique list of points in the optimal paths
+    return optimalPaths.stream()
+        .flatMap(List::stream)
+        .collect(Collectors.toCollection(HashSet::new))
+        .size();
   }
 
   private static MazeMap getMazeMap(Path input) {
@@ -62,45 +67,70 @@ public class Day16 {
       this.endPosition = endPosition;
     }
 
-    public Map<Integer, List<List<Point>>> solutions() {
+    // returns a Pair<Integer, List<List<Points>> of
+    // (<shortest distance from S to E>, <list of paths taking the shortest instance>)
+    public Pair<Integer, List<List<Point>>> solutions() {
       var distances = new HashMap<Reindeer, Integer>();
       var queue = new LinkedList<Pair<List<Reindeer>, Integer>>();
-      var solutions = new HashMap<Integer, List<List<Point>>>();
+      var shortestPaths = new ArrayList<List<Point>>();
+      var shortestDistance = new AtomicInteger(Integer.MAX_VALUE);
 
       queue.add(new Pair<>(List.of(reindeer), 0));
 
       while (!queue.isEmpty()) {
         var current = queue.poll();
-        var path = current.a();
-        var distance = current.b();
-        var node = path.getLast();
+        var currentPath = current.a();
+        var currentDistance = current.b();
+        var currentReindeer = currentPath.getLast();
 
-        Stream.of(
-                new Pair<>(node.direction, 1),
-                new Pair<>(node.direction.clockwise(), 1001),
-                new Pair<>(node.direction.counterClockwise(), 1001))
+        validMovements(currentReindeer.direction)
             .forEach(
                 p -> {
                   var direction = p.a();
-                  var next = node.position.move(direction);
-                  var newWeight = p.b() + distance;
-                  var value = matrix.get(next);
+                  var next = currentReindeer.position.move(direction);
+                  var newDistance = p.b() + currentDistance;
 
-                  if (value != '#') {
-                    var newReindeer = new Reindeer(next, direction);
-                    var weight = distances.getOrDefault(newReindeer, Integer.MAX_VALUE);
-                    if (newWeight <= weight) {
-                      distances.put(newReindeer, newWeight);
-                      queue.add(new Pair<>(append(path, newReindeer), newWeight));
-                    }
-                    if (next.equals(endPosition)) {
-                      solutions.putIfAbsent(newWeight, new ArrayList<>());
-                      solutions.get(newWeight).add(path.stream().map(r -> r.position).toList());
-                    }
+                  if (isValid(next)) {
+                    distances.compute(
+                        new Reindeer(next, direction),
+                        (newReindeer, bestDistance) -> {
+                          bestDistance = bestDistance == null ? Integer.MAX_VALUE : bestDistance;
+                          if (newDistance <= bestDistance) {
+                            var newPath = append(currentPath, newReindeer);
+                            if (isEnd(next)) {
+                              if (newDistance <= shortestDistance.get()) {
+                                if (newDistance < shortestDistance.get()) {
+                                  shortestPaths.clear();
+                                }
+                                shortestPaths.add(newPath.stream().map(r -> r.position).toList());
+                                shortestDistance.set(newDistance);
+                              }
+                            } else {
+                              queue.add(new Pair<>(newPath, newDistance));
+                            }
+                            bestDistance = newDistance;
+                          }
+                          return bestDistance;
+                        });
                   }
                 });
       }
-      return solutions;
+      return new Pair<>(shortestDistance.get(), shortestPaths);
+    }
+
+    private boolean isValid(Point p) {
+      return matrix.get(p) != '#';
+    }
+
+    private boolean isEnd(Point p) {
+      return endPosition.equals(p);
+    }
+
+    private static Stream<Pair<Direction, Integer>> validMovements(Direction currentDirection) {
+      return Stream.of(
+          new Pair<>(currentDirection, 1),
+          new Pair<>(currentDirection.clockwise(), 1001),
+          new Pair<>(currentDirection.counterClockwise(), 1001));
     }
 
     public String toString() {
