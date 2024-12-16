@@ -3,6 +3,7 @@ package ar.zaffa.aoc.puzzles;
 import static ar.zaffa.aoc.annotations.Solution.Day.DAY16;
 import static ar.zaffa.aoc.annotations.Solution.Part.PART1;
 import static ar.zaffa.aoc.annotations.Solution.Part.PART2;
+import static ar.zaffa.aoc.common.CollectionUtils.append;
 import static ar.zaffa.aoc.common.PuzzleUtils.matrix;
 import static java.util.stream.IntStream.range;
 
@@ -11,12 +12,13 @@ import ar.zaffa.aoc.common.Direction;
 import ar.zaffa.aoc.common.Matrix;
 import ar.zaffa.aoc.common.Pair;
 import ar.zaffa.aoc.common.Point;
-import ar.zaffa.aoc.common.PuzzleUtils;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @SuppressWarnings("unused")
@@ -25,15 +27,16 @@ public class Day16 {
 
   @Solution(day = DAY16, part = PART1, example = "11048", expected = "95444")
   public static int part1(Path input) {
-    return getMazeMap(input).dijkstra().stream().min(Integer::compareTo).orElse(-1);
+    return getMazeMap(input).solutions().keySet().stream().min(Integer::compareTo).orElseThrow();
   }
 
-  @Solution(day = DAY16, part = PART2)
+  @Solution(day = DAY16, part = PART2, example = "64", expected = "513")
   public static long part2(Path input) {
-    if (PuzzleUtils.lines(input).count() > 20) {
-      return 1;
-    }
-    return 0;
+    var map = getMazeMap(input);
+    var solutions = map.solutions();
+    var min = solutions.keySet().stream().min(Integer::compareTo).orElseThrow();
+    var paths = map.solutions().get(min).stream().flatMap(List::stream).collect(Collectors.toSet());
+    return paths.size() + 1L;
   }
 
   private static MazeMap getMazeMap(Path input) {
@@ -59,17 +62,18 @@ public class Day16 {
       this.endPosition = endPosition;
     }
 
-    public List<Integer> dijkstra() {
-      var distances = new HashMap<Point, Integer>();
-      var queue = new LinkedList<Pair<Reindeer, Integer>>();
-      var solutions = new ArrayList<Integer>();
+    public Map<Integer, List<List<Point>>> solutions() {
+      var distances = new HashMap<Reindeer, Integer>();
+      var queue = new LinkedList<Pair<List<Reindeer>, Integer>>();
+      var solutions = new HashMap<Integer, List<List<Point>>>();
 
-      queue.add(new Pair<>(reindeer, 0));
+      queue.add(new Pair<>(List.of(reindeer), 0));
 
       while (!queue.isEmpty()) {
         var current = queue.poll();
-        var node = current.a();
+        var path = current.a();
         var distance = current.b();
+        var node = path.getLast();
 
         Stream.of(
                 new Pair<>(node.direction, 1),
@@ -82,16 +86,17 @@ public class Day16 {
                   var newWeight = p.b() + distance;
                   var value = matrix.get(next);
 
-                  if (value == '.') {
-                    var weight = distances.getOrDefault(next, Integer.MAX_VALUE);
-                    if (newWeight < weight) {
-                      distances.put(next, newWeight);
-                      queue.add(new Pair<>(new Reindeer(next, direction), newWeight));
+                  if (value != '#') {
+                    var newReindeer = new Reindeer(next, direction);
+                    var weight = distances.getOrDefault(newReindeer, Integer.MAX_VALUE);
+                    if (newWeight <= weight) {
+                      distances.put(newReindeer, newWeight);
+                      queue.add(new Pair<>(append(path, newReindeer), newWeight));
                     }
-                  } else if (next.equals(endPosition)) {
-                    solutions.add(newWeight);
-                    distances.put(next, newWeight);
-                    queue.add(new Pair<>(new Reindeer(next, direction), newWeight));
+                    if (next.equals(endPosition)) {
+                      solutions.putIfAbsent(newWeight, new ArrayList<>());
+                      solutions.get(newWeight).add(path.stream().map(r -> r.position).toList());
+                    }
                   }
                 });
       }
