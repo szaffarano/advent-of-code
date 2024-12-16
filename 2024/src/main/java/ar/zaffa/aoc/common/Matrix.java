@@ -2,9 +2,11 @@ package ar.zaffa.aoc.common;
 
 import static java.util.Arrays.deepEquals;
 import static java.util.Arrays.deepHashCode;
+import static java.util.stream.IntStream.range;
 
 import ar.zaffa.aoc.exceptions.AOCException;
 import java.util.Arrays;
+import java.util.stream.Stream;
 
 public record Matrix(char[][] matrix) {
   public Matrix {
@@ -42,6 +44,16 @@ public record Matrix(char[][] matrix) {
     return !isOutOfBoundsFor(p);
   }
 
+  public Stream<Point> points() {
+    return range(0, height())
+        .boxed()
+        .flatMap(y -> range(0, width()).mapToObj(x -> new Point(x, y)));
+  }
+
+  public char swap(Point p1, Point p2) {
+    return set(p1, set(p2, get(p1)));
+  }
+
   @Override
   public int hashCode() {
     return deepHashCode(matrix);
@@ -56,9 +68,5 @@ public record Matrix(char[][] matrix) {
   @Override
   public String toString() {
     return Arrays.toString(matrix);
-  }
-
-  public char swap(Point p1, Point p2) {
-    return set(p1, set(p2, get(p1)));
   }
 }

@@ -153,20 +153,7 @@ public class Day12 {
     }
 
     public String toString() {
-      return range(0, map.height())
-          .boxed()
-          .map(y -> range(0, map.width()).mapToObj(x -> new Point(x, y)))
-          .reduce(
-              new StringBuilder(),
-              (acc, row) ->
-                  acc.append(
-                          row.reduce(
-                              new StringBuilder(),
-                              (accRow, p) -> accRow.append(map.get(p)),
-                              StringBuilder::append))
-                      .append("\n"),
-              StringBuilder::append)
-          .toString();
+      return map.toString();
     }
   }
 }
