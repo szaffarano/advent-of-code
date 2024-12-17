@@ -3,6 +3,7 @@ package ar.zaffa.aoc.puzzles;
 import static ar.zaffa.aoc.annotations.Solution.Day.DAY17;
 import static ar.zaffa.aoc.annotations.Solution.Part.PART1;
 import static ar.zaffa.aoc.annotations.Solution.Part.PART2;
+import static ar.zaffa.aoc.common.PuzzleUtils.lines;
 import static ar.zaffa.aoc.puzzles.Day17.State.HALTED;
 import static ar.zaffa.aoc.puzzles.Day17.State.RUNNING;
 import static java.lang.Math.pow;
@@ -10,7 +11,6 @@ import static java.math.RoundingMode.DOWN;
 import static java.util.stream.LongStream.range;
 
 import ar.zaffa.aoc.annotations.Solution;
-import ar.zaffa.aoc.common.PuzzleUtils;
 import ar.zaffa.aoc.exceptions.AOCException;
 import java.math.BigDecimal;
 import java.nio.file.Path;
@@ -40,6 +40,13 @@ public class Day17 {
   public static long part2(Path input) {
     var cpu = loadCPU(input);
 
+    // we have n instructions, when executed return:
+    //   - 0 when 0 <= a <= 7
+    //   - N0 when 8 <= a <= 63
+    //   - NN0 when 64 <= a <= 511
+    // we have a pattern of "sum(0..n) 7 * 8^i" to get a N000...0 result, where len(N) = i
+    // to get the last result before N00000...1, which is the closes one to the first digit of the
+    // result, it's like adding 1, 10, 100, ... in a binary system
     var a = range(0, cpu.instructions.size() - 1L).map(i -> 7L * (long) pow(8, i)).sum() + 1;
     var b = cpu.b;
     var c = cpu.c;
@@ -54,10 +61,16 @@ public class Day17 {
         break;
       }
 
+      // we should have the last N digits of the result equal to the last N digits of the
+      // instructions
+      // figure out the next different digit and apply the same logic as above to get the new value
+      // of a
+      // where the nth + 1 digit start changing
       a +=
           IntStream.range(0, cpu.out.size())
-              .map(i -> cpu.out.size() - i % cpu.out.size() - 1)
-              .filter(i -> !cpu.out.get(i).equals(cpu.instructions.get(i)))
+              .map(i -> cpu.out.size() - i % cpu.out.size() - 1) // reverse the index
+              .filter(i -> !cpu.out.get(i).equals(cpu.instructions.get(i))) // compare the digits
+              // every 8^i is a new digit (we need to add the initial value calculated above)
               .mapToObj(i -> (long) pow(8, i))
               .findFirst()
               .orElse(0L);
@@ -74,30 +87,31 @@ public class Day17 {
   }
 
   static CPU loadCPU(Path input) {
-    var data = PuzzleUtils.lines(input).toList();
-
     var register = Pattern.compile("^Register (?<name>[A-C]): (?<value>\\d+)$");
     var program = Pattern.compile("^Program: (?<program>.*)$");
     var instructions = new ArrayList<Integer>();
     var cpu = new CPU(instructions);
-    data.forEach(
-        line -> {
-          var registerMatcher = register.matcher(line);
-          var programMatcher = program.matcher(line);
-          if (registerMatcher.matches()) {
-            var registerName = registerMatcher.group("name");
-            var value = Long.parseLong(registerMatcher.group("value"));
-            switch (registerName) {
-              case "A" -> cpu.a = value;
-              case "B" -> cpu.b = value;
-              case "C" -> cpu.c = value;
-              default -> throw new AOCException("Invalid register");
-            }
-          } else if (programMatcher.matches()) {
-            var rawInstructions = Arrays.stream(programMatcher.group("program").split(","));
-            instructions.addAll(rawInstructions.map(String::trim).map(Integer::parseInt).toList());
-          }
-        });
+    lines(input)
+        .toList()
+        .forEach(
+            line -> {
+              var registerMatcher = register.matcher(line);
+              var programMatcher = program.matcher(line);
+              if (registerMatcher.matches()) {
+                var registerName = registerMatcher.group("name");
+                var value = Long.parseLong(registerMatcher.group("value"));
+                switch (registerName) {
+                  case "A" -> cpu.a = value;
+                  case "B" -> cpu.b = value;
+                  case "C" -> cpu.c = value;
+                  default -> throw new AOCException("Invalid register");
+                }
+              } else if (programMatcher.matches()) {
+                var rawInstructions = Arrays.stream(programMatcher.group("program").split(","));
+                instructions.addAll(
+                    rawInstructions.map(String::trim).map(Integer::parseInt).toList());
+              }
+            });
 
     return cpu;
   }
