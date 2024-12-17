@@ -5,26 +5,27 @@ import static ar.zaffa.aoc.annotations.Solution.Part.PART1;
 import static ar.zaffa.aoc.annotations.Solution.Part.PART2;
 import static ar.zaffa.aoc.puzzles.Day17.State.HALTED;
 import static ar.zaffa.aoc.puzzles.Day17.State.RUNNING;
+import static java.lang.Math.pow;
+import static java.math.RoundingMode.DOWN;
+import static java.util.stream.LongStream.range;
 
 import ar.zaffa.aoc.annotations.Solution;
 import ar.zaffa.aoc.common.PuzzleUtils;
 import ar.zaffa.aoc.exceptions.AOCException;
+import java.math.BigDecimal;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @SuppressWarnings("unused")
 public class Day17 {
   private Day17() {}
 
-  @Solution(
-      day = DAY17,
-      part = PART1,
-      example = "4,6,3,5,6,3,5,2,1,0",
-      expected = "1,0,2,0,5,7,2,1,3")
+  @Solution(day = DAY17, part = PART1, example = "5,7,3,0", expected = "1,0,2,0,5,7,2,1,3")
   public static String part1(Path input) {
     var cpu = loadCPU(input);
 
@@ -35,9 +36,41 @@ public class Day17 {
     return cpu.out.stream().map(String::valueOf).collect(Collectors.joining(","));
   }
 
-  @Solution(day = DAY17, part = PART2, example = "0", expected = "0")
+  @Solution(day = DAY17, part = PART2, example = "117440", expected = "265652340990875")
   public static long part2(Path input) {
-    return 0;
+    var cpu = loadCPU(input);
+
+    var a = range(0, cpu.instructions.size() - 1L).map(i -> 7L * (long) pow(8, i)).sum() + 1;
+    var b = cpu.b;
+    var c = cpu.c;
+
+    cpu.a = a;
+    while (true) {
+      while (cpu.state == RUNNING) {
+        cpu.execute();
+      }
+
+      if (cpu.instructions.toString().equals(cpu.out.toString())) {
+        break;
+      }
+
+      a +=
+          IntStream.range(0, cpu.out.size())
+              .map(i -> cpu.out.size() - i % cpu.out.size() - 1)
+              .filter(i -> !cpu.out.get(i).equals(cpu.instructions.get(i)))
+              .mapToObj(i -> (long) pow(8, i))
+              .findFirst()
+              .orElse(0L);
+
+      cpu.ip = 0;
+      cpu.a = a;
+      cpu.b = b;
+      cpu.c = c;
+      cpu.out.clear();
+      cpu.state = RUNNING;
+    }
+
+    return a;
   }
 
   static CPU loadCPU(Path input) {
@@ -53,7 +86,7 @@ public class Day17 {
           var programMatcher = program.matcher(line);
           if (registerMatcher.matches()) {
             var registerName = registerMatcher.group("name");
-            var value = Integer.parseInt(registerMatcher.group("value"));
+            var value = Long.parseLong(registerMatcher.group("value"));
             switch (registerName) {
               case "A" -> cpu.a = value;
               case "B" -> cpu.b = value;
@@ -70,22 +103,28 @@ public class Day17 {
   }
 
   static class CPU {
-    Integer a;
-    Integer b;
-    Integer c;
+    Long a;
+    Long b;
+    Long c;
     List<Integer> out;
-    int ip;
+    Integer ip;
     List<Integer> instructions;
     private State state;
 
     public CPU(List<Integer> instructions) {
-      this.a = 0;
-      this.b = 0;
-      this.c = 0;
+      this.a = 0L;
+      this.b = 0L;
+      this.c = 0L;
       this.out = new ArrayList<>();
       this.ip = 0;
       this.instructions = instructions;
       this.state = RUNNING;
+    }
+
+    private Long divide(Long dividend, Long divisor) {
+      return BigDecimal.valueOf(dividend)
+          .divide(BigDecimal.valueOf(2).pow(divisor.intValue()), DOWN)
+          .longValue();
     }
 
     public void execute() {
@@ -93,81 +132,39 @@ public class Day17 {
         this.state = HALTED;
         return;
       }
-      var opcode = Opcode.of(instructions.get(ip++));
+      var opcode = Opcode.of(instructions.get(ip));
+      var operand = instructions.get(ip + 1);
       switch (opcode) {
-        // The *adv* instruction (opcode *0*) performs division. The numerator is the value in the A
-        // register.
-        // The denominator is found by raising 2 to the power of the instruction's combo operand.
-        // (So, an
-        // operand of 2 would divide A by 4 (2^2); an operand of 5 would divide A by 2^B.) The
-        // result of
-        // the division operation is truncated to an integer and then written to the A register.
-        case ADV -> a = (int) (a / Math.pow(2, comboOperand()));
-        // The *bxl* instruction (opcode *1*) calculates the bitwise XOR of register B and the
-        // instruction's
-        // literal operand, then stores the result in register B.
-        case BXL -> b = b ^ literalOperand();
-        // The *bst* instruction (opcode *2*) calculates the value of its combo operand modulo 8
-        // (thereby
-        // keeping only its lowest 3 bits), then writes that value to the B register.
-        case BST -> b = (comboOperand() % 8) & 0b111;
-        // The *jnz* instruction (opcode *3*) does nothing if the A register is 0. However, if the A
-        // register
-        // is not zero, it jumps by setting the instruction pointer to the value of its literal
-        // operand; if
-        // this instruction jumps, the instruction pointer is not increased by 2 after this
-        // instruction.
+        case ADV -> a = divide(a, comboOperand(operand));
+        case BXL -> b = b ^ (long) operand;
+        case BST -> b = comboOperand(operand) & 0b111;
         case JNZ -> {
           if (a != 0) {
-            ip = literalOperand();
+            ip = operand;
+            return;
           }
         }
-        // The *bxc* instruction (opcode *4*) calculates the bitwise XOR of register B and register
-        // C, then
-        // stores the result in register B. (For legacy reasons, this instruction reads an operand
-        // but
-        // ignores it.)
-        case BXC -> {
-          b = b ^ c;
-          literalOperand(); // ignored
-        }
-        // The *out* instruction (opcode *5*) calculates the value of its combo operand modulo 8,
-        // then
-        // outputs that value. (If a program outputs multiple values, they are separated by commas.)
-        case OUT -> out.add(comboOperand() % 8);
-        // The *bdv* instruction (opcode *6*) works exactly like the adv instruction except that the
-        // result
-        // is stored in the B register. (The numerator is still read from the A register.)
-        case BDV -> b = (int) (a / Math.pow(2, comboOperand()));
-        // The *cdv* instruction (opcode *7*) works exactly like the adv instruction except that the
-        // result
-        // is stored in the C register. (The numerator is still read from the A register.)
-        case CDV -> c = (int) (a / Math.pow(2, comboOperand()));
+        case BXC -> b = b ^ c;
+        case OUT -> out.add((int) (comboOperand(operand) & 0b111));
+        case BDV -> b = divide(a, comboOperand(operand));
+        case CDV -> c = divide(a, comboOperand(operand));
       }
+      ip += 2;
     }
 
     public State getState() {
       return state;
     }
 
-    public int comboOperand() {
-      var raw = literalOperand();
-      return switch (raw) {
-        case 0, 1, 2, 3, -1 -> raw;
+    public Long comboOperand(Integer value) {
+      return switch (value) {
+        case 0, 1, 2, 3, -1 -> (long) value;
         case 4 -> a;
         case 5 -> b;
         case 6 -> c;
         case 7 -> throw new AOCException("Reserved value");
-        default -> throw new AOCException("Invalid value: " + raw);
+        default -> throw new AOCException("Invalid value: " + value);
       };
-    }
-
-    public int literalOperand() {
-      if (ip < 0 || ip >= instructions.size()) {
-        state = HALTED;
-        return -1;
-      }
-      return instructions.get(ip++);
     }
   }
 
