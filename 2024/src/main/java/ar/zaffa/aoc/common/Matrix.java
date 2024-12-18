@@ -5,7 +5,6 @@ import static java.util.Arrays.deepHashCode;
 import static java.util.stream.IntStream.range;
 
 import ar.zaffa.aoc.exceptions.AOCException;
-import java.util.Arrays;
 import java.util.stream.Stream;
 
 public record Matrix(char[][] matrix) {
@@ -67,6 +66,19 @@ public record Matrix(char[][] matrix) {
 
   @Override
   public String toString() {
-    return Arrays.toString(matrix);
+    return range(0, height())
+        .boxed()
+        .map(y -> range(0, width()).mapToObj(x -> new Point(x, y)))
+        .reduce(
+            new StringBuilder(),
+            (acc, row) ->
+                acc.append(
+                        row.reduce(
+                            new StringBuilder(),
+                            (accRow, p) -> accRow.append(matrix[p.y()][p.x()]),
+                            StringBuilder::append))
+                    .append("\n"),
+            StringBuilder::append)
+        .toString();
   }
 }
