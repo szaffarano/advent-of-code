@@ -12,7 +12,6 @@ import static ar.zaffa.aoc.common.PuzzleUtils.lines;
 import ar.zaffa.aoc.annotations.Solution;
 import ar.zaffa.aoc.common.Matrix;
 import ar.zaffa.aoc.common.Point;
-import ar.zaffa.aoc.common.PuzzleUtils;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -33,6 +32,24 @@ public class Day18 {
     var end = new Point(width - 1, height - 1);
 
     return findShortestPath(parseInput(input, width, height, bytesToProcess), start, end);
+  }
+
+  @Solution(day = DAY18, part = PART2, example = "6,1", expected = "16,46")
+  public static String part2(Path input) {
+    var coords = lines(input).toList();
+    var width = coords.size() < 30 ? 7 : 71;
+    var height = coords.size() < 30 ? 7 : 71;
+    var start = new Point(0, 0);
+    var end = new Point(width - 1, height - 1);
+    var bytesToProcess = coords.size() < 30 ? 12 : 1024;
+
+    for (var i = bytesToProcess; i < coords.size(); i++) {
+      var result = findShortestPath(parseInput(input, width, height, i), start, end);
+      if (result == -1) {
+        return coords.get(i - 1);
+      }
+    }
+    return "-1,-1";
   }
 
   private static Integer findShortestPath(Matrix matrix, Point start, Point end) {
@@ -99,15 +116,5 @@ public class Day18 {
             .toArray(char[][]::new);
 
     return new Matrix(matrix);
-  }
-
-  @Solution(day = DAY18, part = PART2, example = "-1", expected = "-1")
-  public static long part2(Path input) {
-    var data = lines(input).toList();
-    if (data.size() > 20 || data.isEmpty()) {
-      return -1;
-    }
-
-    return 0;
   }
 }
