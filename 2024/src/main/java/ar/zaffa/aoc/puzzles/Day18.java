@@ -8,6 +8,7 @@ import static ar.zaffa.aoc.common.Direction.DOWN;
 import static ar.zaffa.aoc.common.Direction.RIGHT;
 import static ar.zaffa.aoc.common.Direction.UP;
 import static ar.zaffa.aoc.common.PuzzleUtils.lines;
+import static java.lang.Math.min;
 
 import ar.zaffa.aoc.annotations.Solution;
 import ar.zaffa.aoc.common.Matrix;
@@ -74,11 +75,8 @@ public class Day18 {
                 var next = curr.move(direction);
                 var currentDistance = distances.get(curr);
 
-                if (matrix.isInside(next) && matrix.get(next) == '.') {
-                  var newDistance = currentDistance + 1;
-
-                  distances.compute(
-                      next, (k, v) -> v == null ? newDistance : Math.min(v, newDistance));
+                if (isValid(matrix, next)) {
+                  updateDistances(distances, next, currentDistance + 1);
 
                   if (!next.equals(end)) {
                     stack.add(next);
@@ -88,6 +86,14 @@ public class Day18 {
     }
 
     return distances.getOrDefault(end, -1);
+  }
+
+  private static void updateDistances(HashMap<Point, Integer> distances, Point pos, int distance) {
+    distances.compute(pos, (k, v) -> v == null ? distance : min(v, distance));
+  }
+
+  private static boolean isValid(Matrix matrix, Point position) {
+    return matrix.isInside(position) && matrix.get(position) == '.';
   }
 
   private static Matrix parseInput(Path input, int width, int height, int bytesToProcess) {
