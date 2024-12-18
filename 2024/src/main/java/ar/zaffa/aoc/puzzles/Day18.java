@@ -25,32 +25,45 @@ public class Day18 {
 
   @Solution(day = DAY18, part = PART1, example = "22", expected = "310")
   public static int part1(Path input) {
-    var inputLength = lines(input).count();
-    var width = inputLength < 30 ? 7 : 71;
-    var height = inputLength < 30 ? 7 : 71;
-    var bytesToProcess = inputLength < 30 ? 12 : 1024;
-    var start = new Point(0, 0);
-    var end = new Point(width - 1, height - 1);
+    var coords = lines(input).toList();
 
-    return findShortestPath(parseInput(input, width, height, bytesToProcess), start, end);
+    return findShortestPath(
+        parseInput(coords, size(coords), bytesToProcess(coords)), start(), end(coords));
   }
 
   @Solution(day = DAY18, part = PART2, example = "6,1", expected = "16,46")
   public static String part2(Path input) {
     var coords = lines(input).toList();
-    var width = coords.size() < 30 ? 7 : 71;
-    var height = coords.size() < 30 ? 7 : 71;
-    var start = new Point(0, 0);
-    var end = new Point(width - 1, height - 1);
-    var bytesToProcess = coords.size() < 30 ? 12 : 1024;
 
-    for (var i = bytesToProcess; i < coords.size(); i++) {
-      var result = findShortestPath(parseInput(input, width, height, i), start, end);
+    // assumes that at least until "bytesToProcess" (the valid cut-off for part one) the output path
+    // is correct
+    for (var i = bytesToProcess(coords); i < coords.size(); i++) {
+      var result = findShortestPath(parseInput(coords, size(coords), i), start(), end(coords));
       if (result == -1) {
         return coords.get(i - 1);
       }
     }
-    return "-1,-1";
+    return "not found";
+  }
+
+  private static int bytesToProcess(List<String> coords) {
+    return isExample(coords) ? 12 : 1024;
+  }
+
+  private static Point start() {
+    return new Point(0, 0);
+  }
+
+  private static Point end(List<String> coords) {
+    return new Point(size(coords) - 1, size(coords) - 1);
+  }
+
+  private static int size(List<String> coords) {
+    return isExample(coords) ? 7 : 71;
+  }
+
+  private static boolean isExample(List<String> coords) {
+    return coords.size() == 25;
   }
 
   private static Integer findShortestPath(Matrix matrix, Point start, Point end) {
@@ -96,9 +109,9 @@ public class Day18 {
     return matrix.isInside(position) && matrix.get(position) == '.';
   }
 
-  private static Matrix parseInput(Path input, int width, int height, int bytesToProcess) {
+  private static Matrix parseInput(List<String> input, int size, int bytesToProcess) {
     var corrupted =
-        lines(input)
+        input.stream()
             .map(
                 l -> {
                   var coords = l.split(",");
@@ -108,10 +121,10 @@ public class Day18 {
             .toList();
 
     var matrix =
-        IntStream.range(0, height)
+        IntStream.range(0, size)
             .mapToObj(
                 y ->
-                    IntStream.range(0, width)
+                    IntStream.range(0, size)
                         .mapToObj(x -> (corrupted.contains(new Point(x, y)) ? '#' : '.'))
                         .collect(
                             StringBuilder::new,
