@@ -17,15 +17,15 @@ public class Day19 {
 
   @Solution(day = DAY19, part = PART1, example = "6", expected = "358")
   public static long part1(Path input) {
-    return parseInput(input).towels.stream()
-        .filter(t -> validCombinations(t, parseInput(input).designs) > 0)
-        .count();
+    var towels = parseInput(input);
+    return towels.towels.stream().filter(t -> validCombinations(t, towels.designs) > 0).count();
   }
 
   @Solution(day = DAY19, part = PART2, example = "16", expected = "600639829400603")
   public static long part2(Path input) {
-    return parseInput(input).towels.stream()
-        .map(t -> validCombinations(t, parseInput(input).designs))
+    var towels = parseInput(input);
+    return towels.towels.stream()
+        .map(t -> validCombinations(t, towels.designs))
         .reduce(0L, Long::sum);
   }
 
