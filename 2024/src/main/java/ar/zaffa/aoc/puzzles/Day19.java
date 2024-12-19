@@ -31,22 +31,48 @@ public class Day19 {
 
   static Long validCombinations(String towel, List<String> designs) {
     // number of combinations to create the pattern for `towel.substring(i, towel.length)`
-    // i.e., `validCombinations[0]` -> # of combinations to create the "full" towel using `designs`,
-    // and `validCombinations[0]` -> # of combinations to create an "empty" towel
-    long[] validCombinations = new long[towel.length() + 1];
+    // i.e., `combinations[0]` -> # of combinations to create the "full" towel using `designs`,
+    // and `combinations[0]` -> # of combinations to create an "empty" towel
+    //
+    // Example:
+    // designs = r, wr, b, g, bwu, rb, gb, br
+    // towel brwrr
+    //
+    // combinations[5] = 1 // an empty towel is created in a single way, without any design
+    // combinations[4] ("r")
+    //  1. r   -> match -> combinations[4] += combinations[4 + 1]
+    //  2. wr  -> X
+    //  3. b   -> X
+    //  4. g   -> X
+    //  5. bwu -> X
+    //  6. rb  -> X
+    //  7. gb  -> X
+    //  8. br  -> X
+    // .....
+    // combinations[0] ("brwrr")
+    //  1. r   -> X
+    //  2. wr  -> X
+    //  3. b   -> match -> combinations[0] += combinations[0 + 1] (combinations of "rwrr")
+    //  4. g   -> X
+    //  5. bwu -> X
+    //  6. rb  -> X
+    //  7. gb  -> X
+    //  8. br  -> match -> combinations[0] += combinations[0 + 2]
+    long[] combinations = new long[towel.length() + 1];
 
     // base case: to create an empty towel, there is only one way, i.e., using an empty design
-    validCombinations[towel.length()] = 1;
+    combinations[towel.length()] = 1;
 
     for (var i = towel.length() - 1; i >= 0; i--) {
+      var part = towel.substring(i);
       for (var design : designs) {
-        if (towel.startsWith(design, i)) { // same as `towel.substring(i).startsWith(design)`
-          validCombinations[i] += validCombinations[i + design.length()];
+        if (part.startsWith(design)) { // same as `towel.substring(i).startsWith(design)`
+          combinations[i] += combinations[i + design.length()];
         }
       }
     }
 
-    return validCombinations[0];
+    return combinations[0];
   }
 
   static Towels parseInput(Path input) {
