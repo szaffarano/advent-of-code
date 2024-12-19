@@ -36,14 +36,20 @@ public class Day18 {
     var coords = lines(input).toList();
 
     // assumes that at least until "bytesToProcess" (the valid cut-off for part one) the output path
-    // is correct
-    for (var i = bytesToProcess(coords); i < coords.size(); i++) {
-      var result = findShortestPath(parseInput(coords, size(coords), i), start(), end(coords));
+    // is correct and makes a binary search to find the last valid path
+    var start = bytesToProcess(coords);
+    var end = coords.size();
+    while (end - start > 1) {
+      var candidate = (start + end) / 2;
+      var result =
+          findShortestPath(parseInput(coords, size(coords), candidate), start(), end(coords));
       if (result == -1) {
-        return coords.get(i - 1);
+        end = candidate;
+      } else {
+        start = candidate;
       }
     }
-    return "not found";
+    return coords.get(end - 1);
   }
 
   private static int bytesToProcess(List<String> coords) {
