@@ -81,4 +81,12 @@ public record Matrix(char[][] matrix) {
             StringBuilder::append)
         .toString();
   }
+
+  public Stream<Point> find(char value) {
+    return points().filter(p -> get(p) == value);
+  }
+
+  public boolean hasValue(Point p, char c) {
+    return isInside(p) && get(p) == c;
+  }
 }
