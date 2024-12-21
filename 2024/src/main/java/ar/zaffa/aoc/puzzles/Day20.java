@@ -10,6 +10,8 @@ import static ar.zaffa.aoc.common.Direction.RIGHT;
 import static ar.zaffa.aoc.common.Direction.UP;
 import static ar.zaffa.aoc.puzzles.Day20.RaceTrack.TRACK_CHAR;
 import static ar.zaffa.aoc.puzzles.Day20.RaceTrack.WALL_CHAR;
+import static java.lang.Integer.MAX_VALUE;
+import static java.util.stream.Collectors.toMap;
 import static java.util.stream.IntStream.range;
 
 import ar.zaffa.aoc.annotations.Solution;
@@ -22,7 +24,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @SuppressWarnings("unused")
@@ -52,10 +53,11 @@ public class Day20 {
   }
 
   static Integer shortestPathsCheating(List<Point> path, Integer threshold, Integer cheatingTime) {
-    var count = 0;
-    var distanceFromPoint = path.stream().collect(Collectors.toMap(p -> p, path::indexOf));
+    var paths = 0;
+    // distances from a given point until the end of the path
+    var distancesToEnd = path.stream().collect(toMap(p -> p, path::indexOf));
 
-    // Get all points in [-cheatingTie, ..., cheatingTime] within cheatingTime distance from the
+    // Get all points in [-cheatingTime, ..., cheatingTime] within cheatingTime distance from the
     // origin
     var cheatingPoints =
         range(0, (2 * cheatingTime) + 1)
@@ -72,16 +74,15 @@ public class Day20 {
     for (var p : path) {
       for (var cp : cheatingPoints) {
         var candidate = p.plus(cp);
-        if (distanceFromPoint.containsKey(candidate)) {
-          var diff =
-              distanceFromPoint.get(candidate) - distanceFromPoint.get(p) - cp.manhattanDistance();
+        if (distancesToEnd.containsKey(candidate)) {
+          var diff = distancesToEnd.get(p) - distancesToEnd.get(candidate) - cp.manhattanDistance();
           if (threshold <= diff) {
-            count++;
+            paths++;
           }
         }
       }
     }
-    return count;
+    return paths;
   }
 
   static List<Point> shortestPath(Point start, Point end, Matrix matrix) {
@@ -116,7 +117,7 @@ public class Day20 {
                   distances.compute(
                       next,
                       (newSep, bestDistance) -> {
-                        bestDistance = bestDistance == null ? Integer.MAX_VALUE : bestDistance;
+                        bestDistance = bestDistance == null ? MAX_VALUE : bestDistance;
                         if (newDistance <= bestDistance) {
                           var newPath = append(currentPath.steps, newSep);
                           if (isEnd) {
