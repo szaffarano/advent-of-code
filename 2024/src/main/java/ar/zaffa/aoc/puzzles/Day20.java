@@ -3,28 +3,18 @@ package ar.zaffa.aoc.puzzles;
 import static ar.zaffa.aoc.annotations.Solution.Day.DAY20;
 import static ar.zaffa.aoc.annotations.Solution.Part.PART1;
 import static ar.zaffa.aoc.annotations.Solution.Part.PART2;
-import static ar.zaffa.aoc.common.CollectionUtils.append;
-import static ar.zaffa.aoc.common.Direction.DOWN;
-import static ar.zaffa.aoc.common.Direction.LEFT;
-import static ar.zaffa.aoc.common.Direction.RIGHT;
-import static ar.zaffa.aoc.common.Direction.UP;
-import static ar.zaffa.aoc.puzzles.Day20.RaceTrack.TRACK_CHAR;
-import static ar.zaffa.aoc.puzzles.Day20.RaceTrack.WALL_CHAR;
-import static java.lang.Integer.MAX_VALUE;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.IntStream.range;
 
 import ar.zaffa.aoc.annotations.Solution;
-import ar.zaffa.aoc.common.Direction;
 import ar.zaffa.aoc.common.Matrix;
 import ar.zaffa.aoc.common.Point;
 import ar.zaffa.aoc.common.PuzzleUtils;
+import ar.zaffa.aoc.common.Steps;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Stream;
+import java.util.function.Predicate;
+import java.util.function.ToIntFunction;
 
 @SuppressWarnings("unused")
 public class Day20 {
@@ -32,24 +22,18 @@ public class Day20 {
 
   @Solution(day = DAY20, part = PART1, example = "44", expected = "1323")
   public static int part1(Path input) {
-    var raceTrack = parseRaceTrack(input);
-    var threshold = raceTrack.height() == 15 ? 1 : 100;
+    var threshold = parseRaceTrack(input).height() == 15 ? 1 : 100;
     var cheatingTime = 2;
 
-    var shortestPath = shortestPath(raceTrack.start, raceTrack.end, raceTrack.matrix);
-
-    return shortestPathsCheating(shortestPath, threshold, cheatingTime);
+    return shortestPathsCheating(parseRaceTrack(input).shortestPath(), threshold, cheatingTime);
   }
 
   @Solution(day = DAY20, part = PART2, example = "285", expected = "983905")
   public static long part2(Path input) {
-    var raceTrack = parseRaceTrack(input);
-    var threshold = raceTrack.height() == 15 ? 50 : 100;
+    var threshold = parseRaceTrack(input).height() == 15 ? 50 : 100;
     var cheatingTime = 20;
 
-    var shortestPath = shortestPath(raceTrack.start, raceTrack.end, raceTrack.matrix);
-
-    return shortestPathsCheating(shortestPath, threshold, cheatingTime);
+    return shortestPathsCheating(parseRaceTrack(input).shortestPath(), threshold, cheatingTime);
   }
 
   static Integer shortestPathsCheating(List<Point> path, Integer threshold, Integer cheatingTime) {
@@ -85,79 +69,25 @@ public class Day20 {
     return paths;
   }
 
-  static List<Point> shortestPath(Point start, Point end, Matrix matrix) {
-    var queue = new LinkedList<Steps>();
-    var distances = new HashMap<Point, Integer>();
-    var shortestPath = new ArrayList<Point>();
-
-    queue.add(new Steps(List.of(start), 0));
-
-    while (!queue.isEmpty() && shortestPath.isEmpty()) {
-      var currentPath = queue.poll();
-
-      Stream.of(UP, DOWN, LEFT, RIGHT)
-          .forEach(
-              direction -> {
-                var next = currentPath.move(direction);
-                var newDistance = currentPath.distance + 1;
-
-                var isWall =
-                    next == null
-                        || matrix.isOutOfBoundsFor(next)
-                        || matrix.hasValue(next, WALL_CHAR);
-                var isTrack = matrix.hasValue(next, TRACK_CHAR);
-                final var isEnd = end.equals(next);
-                var isVisited =
-                    distances.containsKey(next) && distances.get(next) <= currentPath.distance;
-
-                if (isWall || isVisited) {
-                  return;
-                }
-                if (isTrack || isEnd) {
-                  distances.compute(
-                      next,
-                      (newSep, bestDistance) -> {
-                        bestDistance = bestDistance == null ? MAX_VALUE : bestDistance;
-                        if (newDistance <= bestDistance) {
-                          var newPath = append(currentPath.steps, newSep);
-                          if (isEnd) {
-                            shortestPath.addAll(new ArrayList<>(newPath));
-                          } else {
-                            queue.add(new Steps(newPath, newDistance));
-                          }
-                          bestDistance = newDistance;
-                        }
-                        return bestDistance;
-                      });
-                }
-              });
-    }
-    return shortestPath;
-  }
-
-  record Steps(List<Point> steps, int distance) {
-    Point move(Direction direction) {
-      if (steps.isEmpty()) {
-        return null;
-      }
-      return steps.getLast().move(direction);
-    }
-  }
-
   record RaceTrack(Point start, Point end, Matrix matrix) {
     public static final Character WALL_CHAR = '#';
     public static final Character TRACK_CHAR = '.';
 
-    public int height() {
+    List<Point> shortestPath() {
+      Predicate<Point> isValid =
+          next -> {
+            var isWall =
+                next == null || matrix.isOutOfBoundsFor(next) || matrix.hasValue(next, WALL_CHAR);
+            var isTrack = matrix.hasValue(next, TRACK_CHAR);
+            final var isEnd = end.equals(next);
+            return !isWall && (isTrack || isEnd);
+          };
+      ToIntFunction<Steps> distance = s -> s.distance() + 1;
+      return PuzzleUtils.shortestPath(start, end, isValid, distance);
+    }
+
+    int height() {
       return matrix.height();
-    }
-
-    public char get(Point point) {
-      return matrix.get(point);
-    }
-
-    public String toString() {
-      return matrix.toString();
     }
   }
 

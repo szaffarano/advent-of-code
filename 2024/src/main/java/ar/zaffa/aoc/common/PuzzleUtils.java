@@ -1,5 +1,11 @@
 package ar.zaffa.aoc.common;
 
+import static ar.zaffa.aoc.common.CollectionUtils.append;
+import static ar.zaffa.aoc.common.Direction.DOWN;
+import static ar.zaffa.aoc.common.Direction.LEFT;
+import static ar.zaffa.aoc.common.Direction.RIGHT;
+import static ar.zaffa.aoc.common.Direction.UP;
+import static java.lang.Integer.MAX_VALUE;
 import static java.lang.String.format;
 import static java.nio.file.Files.readAllLines;
 import static java.util.Map.entry;
@@ -10,9 +16,15 @@ import ar.zaffa.aoc.annotations.Solution.Day;
 import ar.zaffa.aoc.exceptions.AOCException;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.Predicate;
+import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -44,6 +56,45 @@ public class PuzzleUtils {
         Arrays.stream(lines(input).map(String::toCharArray).toArray(char[][]::new))
             .map(row -> range(0, row.length).map(c -> Character.getNumericValue(row[c])).toArray())
             .toArray(int[][]::new));
+  }
+
+  public static List<Point> shortestPath(
+      Point start, Point end, Predicate<Point> isValid, ToIntFunction<Steps> distance) {
+    var queue = new LinkedList<Steps>();
+    var distances = new HashMap<Point, Integer>();
+    var shortestPath = new ArrayList<Point>();
+
+    queue.add(new Steps(List.of(start), 0));
+
+    while (!queue.isEmpty() && shortestPath.isEmpty()) {
+      var currentPath = queue.poll();
+
+      Stream.of(UP, DOWN, LEFT, RIGHT)
+          .forEach(
+              direction -> {
+                var next = currentPath.move(direction);
+                var newDistance = distance.applyAsInt(currentPath);
+
+                if (isValid.test(next)) {
+                  distances.compute(
+                      next,
+                      (newSep, bestDistance) -> {
+                        bestDistance = bestDistance == null ? MAX_VALUE : bestDistance;
+                        if (newDistance <= bestDistance) {
+                          var newPath = append(currentPath.steps(), newSep);
+                          if (end.equals(next)) {
+                            shortestPath.addAll(new ArrayList<>(newPath));
+                          } else {
+                            queue.add(new Steps(newPath, newDistance));
+                          }
+                          bestDistance = newDistance;
+                        }
+                        return bestDistance;
+                      });
+                }
+              });
+    }
+    return shortestPath;
   }
 
   public static Stream<Map<String, String>> parsedLines(Path input, String regex) {
