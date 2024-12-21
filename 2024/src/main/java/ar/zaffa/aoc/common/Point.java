@@ -77,6 +77,10 @@ public record Point(int x, int y) {
     }
   }
 
+  public int manhattanDistance() {
+    return Math.abs(x) + Math.abs(y);
+  }
+
   public static class PointComparator implements java.util.Comparator<Point> {
     @Override
     public int compare(Point p1, Point p2) {
