@@ -4,6 +4,7 @@ import static ar.zaffa.aoc.annotations.Solution.Day.DAY21;
 import static ar.zaffa.aoc.annotations.Solution.Part.PART1;
 import static ar.zaffa.aoc.annotations.Solution.Part.PART2;
 import static ar.zaffa.aoc.common.Direction.fromArrow;
+import static ar.zaffa.aoc.common.PuzzleUtils.lines;
 import static java.lang.Integer.parseInt;
 import static java.util.Arrays.stream;
 import static java.util.stream.Collectors.joining;
@@ -13,10 +14,8 @@ import ar.zaffa.aoc.annotations.Solution;
 import ar.zaffa.aoc.common.Matrix;
 import ar.zaffa.aoc.common.Pair;
 import ar.zaffa.aoc.common.Point;
-import ar.zaffa.aoc.common.PuzzleUtils;
 import ar.zaffa.aoc.exceptions.AOCException;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,104 +23,64 @@ import java.util.regex.Pattern;
 
 @SuppressWarnings("unused")
 public class Day21 {
+  static Map<Pair<String, Integer>, Long> cache = new HashMap<>();
+
   private Day21() {}
 
   @Solution(day = DAY21, part = PART1, example = "126384", expected = "248108")
-  public static int part1(Path input) {
-    var codes = PuzzleUtils.lines(input).toList();
-
-    var keyboards =
-        List.of(new NumericKeyboard(), new DirectionalKeyboard(), new DirectionalKeyboard());
-
-    var answers = new ArrayList<Integer>();
-    for (var code : codes) {
-      var sb = new StringBuilder();
-      for (var ch : code.toCharArray()) {
-        sb.append(typeDigitMultilevel(keyboards, ch));
-      }
-      answers.add(sb.length() * numberOf(code));
-    }
-
-    return answers.stream().reduce(0, Integer::sum);
+  public static long part1(Path input) {
+    return solution(input, 2);
   }
 
-  @Solution(day = DAY21, part = PART2, example = "-1", expected = "-1")
+  @Solution(day = DAY21, part = PART2, example = "154115708116294", expected = "303836969158972")
   public static long part2(Path input) {
-    var codes = PuzzleUtils.lines(input).toList();
-
-    var keyboards =
-        List.of(
-            new NumericKeyboard(),
-            new DirectionalKeyboard(),
-            new DirectionalKeyboard(),
-            new DirectionalKeyboard(),
-            new DirectionalKeyboard(),
-            new DirectionalKeyboard(),
-            new DirectionalKeyboard(),
-            new DirectionalKeyboard(),
-            new DirectionalKeyboard(),
-            new DirectionalKeyboard(),
-            new DirectionalKeyboard(),
-            new DirectionalKeyboard(),
-            new DirectionalKeyboard(),
-            new DirectionalKeyboard(),
-            new DirectionalKeyboard(),
-            new DirectionalKeyboard(),
-            new DirectionalKeyboard(),
-            new DirectionalKeyboard(),
-            new DirectionalKeyboard(),
-            new DirectionalKeyboard(),
-            new DirectionalKeyboard(),
-            new DirectionalKeyboard(),
-            new DirectionalKeyboard(),
-            new DirectionalKeyboard(),
-            new DirectionalKeyboard(),
-            new DirectionalKeyboard());
-
-    var answers = new ArrayList<Long>();
-    for (var code : codes) {
-      var sb = new StringBuilder();
-      for (var ch : code.toCharArray()) {
-        sb.append(typeDigitMultilevel(keyboards, ch));
-      }
-      answers.add((long) sb.length() * numberOf(code));
-    }
-
-    return answers.stream().reduce(0L, Long::sum);
+    return solution(input, 25);
   }
 
-  private static String typeDigitMultilevel(List<Keyboard> keyboards, char ch) {
-    if (keyboards.isEmpty()) {
-      throw new AOCException("No keyboards");
+  private static Long solution(Path input, int depth) {
+    var kb = new NumericKeyboard();
+    return lines(input)
+        .map(
+            code -> {
+              var sum =
+                  code.chars()
+                      .mapToObj(ch -> typeDigitMultilevel((char) ch, kb, depth))
+                      .reduce(0L, Long::sum);
+              return sum * numberOf(code);
+            })
+        .reduce(0L, Long::sum);
+  }
+
+  private static Long typeDigitMultilevel(char ch, Keyboard kb, int depth) {
+    var validCombinations = typeDigit(ch, kb);
+
+    if (depth == 0) {
+      return (long) shortestLength(validCombinations);
     }
 
-    var validCombinations = typeDigit(ch, keyboards.getFirst());
-
-    if (keyboards.size() == 1) {
-      return shortest(validCombinations);
-    }
-
-    List<String> validPaths = new ArrayList<>();
+    var min = Long.MAX_VALUE;
     for (var keys : validCombinations) {
-      var path = new StringBuilder();
-      for (var key : keys.toCharArray()) {
-        path.append(typeDigitMultilevel(keyboards.subList(1, keyboards.size()), key));
+      var sum = 0L;
+      var updatedDepth = depth - 1;
+      var cacheKey = new Pair<>(keys, updatedDepth);
+      if (cache.containsKey(cacheKey)) {
+        sum = cache.get(cacheKey);
+      } else {
+        final var kkb = new DirectionalKeyboard();
+        sum =
+            keys.chars()
+                .mapToObj(key -> typeDigitMultilevel((char) key, kkb, updatedDepth))
+                .reduce(0L, Long::sum);
+        cache.put(cacheKey, sum);
       }
-      validPaths.add(path.toString());
-    }
-    return shortest(validPaths);
-  }
 
-  static Map<Pair<Character, Pair<String, Point>>, List<String>> cache = new HashMap<>();
+      min = Math.min(min, sum);
+    }
+    return min;
+  }
 
   private static List<String> typeDigit(char digit, Keyboard kb) {
-    var cacheKey = new Pair<>(digit, new Pair<>(kb.getClass().getSimpleName(), kb.current));
-
     var target = kb.position(digit);
-    if (cache.containsKey(cacheKey)) {
-      kb.current = target;
-      return cache.get(cacheKey);
-    }
 
     var paths =
         kb.matrix.shortestPaths(kb.current, target).stream()
@@ -138,18 +97,11 @@ public class Day21 {
       return List.of("A");
     }
     kb.current = target;
-    cache.put(cacheKey, paths);
     return paths;
   }
 
-  private static String shortest(List<String> values) {
-    String min = null;
-    for (var value : values) {
-      if (min == null || value.length() < min.length()) {
-        min = value;
-      }
-    }
-    return min;
+  private static Integer shortestLength(List<String> values) {
+    return values.stream().mapToInt(String::length).min().orElseThrow();
   }
 
   private static int numberOf(String code) {
