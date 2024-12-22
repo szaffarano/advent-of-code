@@ -55,4 +55,31 @@ public enum Direction {
       case DOWN_RIGHT -> UP_LEFT;
     };
   }
+
+  public char arrow() {
+    return switch (this) {
+      case UP -> '^';
+      case DOWN -> 'v';
+      case LEFT -> '<';
+      case RIGHT -> '>';
+      case UP_LEFT -> '↖';
+      case UP_RIGHT -> '↗';
+      case DOWN_LEFT -> '↙';
+      case DOWN_RIGHT -> '↘';
+    };
+  }
+
+  public static Direction fromArrow(char arrow) {
+    return switch (arrow) {
+      case '^' -> UP;
+      case 'v' -> DOWN;
+      case '<' -> LEFT;
+      case '>' -> RIGHT;
+      case '↖' -> UP_LEFT;
+      case '↗' -> UP_RIGHT;
+      case '↙' -> DOWN_LEFT;
+      case '↘' -> DOWN_RIGHT;
+      default -> throw new IllegalArgumentException("Invalid arrow: " + arrow);
+    };
+  }
 }

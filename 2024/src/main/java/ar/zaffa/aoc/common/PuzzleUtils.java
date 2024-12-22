@@ -23,6 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
@@ -60,13 +61,19 @@ public class PuzzleUtils {
 
   public static List<Point> shortestPath(
       Point start, Point end, Predicate<Point> isValid, ToIntFunction<Steps> distance) {
+    return shortestPaths(start, end, isValid, distance).getFirst();
+  }
+
+  public static List<List<Point>> shortestPaths(
+      Point start, Point end, Predicate<Point> isValid, ToIntFunction<Steps> distance) {
     var queue = new LinkedList<Steps>();
     var distances = new HashMap<Point, Integer>();
-    var shortestPath = new ArrayList<Point>();
+    var shortestPaths = new ArrayList<List<Point>>();
+    var shortestDistance = new AtomicInteger(Integer.MAX_VALUE);
 
     queue.add(new Steps(List.of(start), 0));
 
-    while (!queue.isEmpty() && shortestPath.isEmpty()) {
+    while (!queue.isEmpty()) {
       var currentPath = queue.poll();
 
       Stream.of(UP, DOWN, LEFT, RIGHT)
@@ -83,7 +90,13 @@ public class PuzzleUtils {
                         if (newDistance <= bestDistance) {
                           var newPath = append(currentPath.steps(), newSep);
                           if (end.equals(next)) {
-                            shortestPath.addAll(new ArrayList<>(newPath));
+                            if (newDistance <= shortestDistance.get()) {
+                              if (newDistance < shortestDistance.get()) {
+                                shortestPaths.clear();
+                              }
+                              shortestPaths.add(new ArrayList<>(newPath));
+                              shortestDistance.set(newDistance);
+                            }
                           } else {
                             queue.add(new Steps(newPath, newDistance));
                           }
@@ -94,7 +107,7 @@ public class PuzzleUtils {
                 }
               });
     }
-    return shortestPath;
+    return shortestPaths;
   }
 
   public static Stream<Map<String, String>> parsedLines(Path input, String regex) {

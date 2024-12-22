@@ -5,6 +5,7 @@ import static java.util.Arrays.deepHashCode;
 import static java.util.stream.IntStream.range;
 
 import ar.zaffa.aoc.exceptions.AOCException;
+import java.util.List;
 import java.util.stream.Stream;
 
 public record Matrix(char[][] matrix) {
@@ -86,7 +87,33 @@ public record Matrix(char[][] matrix) {
     return points().filter(p -> get(p) == value);
   }
 
+  public Point get(char value) {
+    var values = find(value).toList();
+    if (values.size() > 1) {
+      throw new AOCException(value + ": multiple values found");
+    } else if (values.isEmpty()) {
+      throw new AOCException(value + ": not found");
+    }
+    return values.getFirst();
+  }
+
   public boolean hasValue(Point p, char c) {
     return isInside(p) && get(p) == c;
+  }
+
+  public List<Point> shortestPath(Point from, Point to) {
+    if (from.equals(to)) {
+      return List.of();
+    }
+    return PuzzleUtils.shortestPath(
+        from, to, p -> isInside(p) && get(p) != ' ', s -> s.distance() + 1);
+  }
+
+  public List<List<Point>> shortestPaths(Point from, Point to) {
+    if (from.equals(to)) {
+      return List.of();
+    }
+    return PuzzleUtils.shortestPaths(
+        from, to, p -> isInside(p) && get(p) != ' ', s -> s.distance() + 1);
   }
 }
