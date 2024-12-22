@@ -11,12 +11,15 @@ import static java.util.stream.IntStream.range;
 
 import ar.zaffa.aoc.annotations.Solution;
 import ar.zaffa.aoc.common.Matrix;
+import ar.zaffa.aoc.common.Pair;
 import ar.zaffa.aoc.common.Point;
 import ar.zaffa.aoc.common.PuzzleUtils;
 import ar.zaffa.aoc.exceptions.AOCException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 @SuppressWarnings("unused")
@@ -27,15 +30,14 @@ public class Day21 {
   public static int part1(Path input) {
     var codes = PuzzleUtils.lines(input).toList();
 
-    var numeric = new Keyboard(new Matrix(NUMERIC_KEYBOARD));
-    var directionalL1 = new Keyboard(new Matrix(DIRECTIONAL_KEYPAD));
-    var directionalL2 = new Keyboard(new Matrix(DIRECTIONAL_KEYPAD));
+    var keyboards =
+        List.of(new NumericKeyboard(), new DirectionalKeyboard(), new DirectionalKeyboard());
 
     var answers = new ArrayList<Integer>();
     for (var code : codes) {
       var sb = new StringBuilder();
       for (var ch : code.toCharArray()) {
-        sb.append(typeDigitMultilevel(numeric, directionalL1, directionalL2, ch));
+        sb.append(typeDigitMultilevel(keyboards, ch));
       }
       answers.add(sb.length() * numberOf(code));
     }
@@ -45,42 +47,81 @@ public class Day21 {
 
   @Solution(day = DAY21, part = PART2, example = "-1", expected = "-1")
   public static long part2(Path input) {
-    var data = PuzzleUtils.lines(input).toList();
-    if (data.size() > 20 || data.isEmpty()) {
-      return -1;
-    }
+    var codes = PuzzleUtils.lines(input).toList();
 
-    return 0;
-  }
+    var keyboards =
+        List.of(
+            new NumericKeyboard(),
+            new DirectionalKeyboard(),
+            new DirectionalKeyboard(),
+            new DirectionalKeyboard(),
+            new DirectionalKeyboard(),
+            new DirectionalKeyboard(),
+            new DirectionalKeyboard(),
+            new DirectionalKeyboard(),
+            new DirectionalKeyboard(),
+            new DirectionalKeyboard(),
+            new DirectionalKeyboard(),
+            new DirectionalKeyboard(),
+            new DirectionalKeyboard(),
+            new DirectionalKeyboard(),
+            new DirectionalKeyboard(),
+            new DirectionalKeyboard(),
+            new DirectionalKeyboard(),
+            new DirectionalKeyboard(),
+            new DirectionalKeyboard(),
+            new DirectionalKeyboard(),
+            new DirectionalKeyboard(),
+            new DirectionalKeyboard(),
+            new DirectionalKeyboard(),
+            new DirectionalKeyboard(),
+            new DirectionalKeyboard(),
+            new DirectionalKeyboard());
 
-  private static String typeDigitMultilevel(Keyboard kbN, Keyboard kbD1, Keyboard kbD2, char ch) {
-    var optionsNumeric = typeDigit(ch, kbN);
-    var alternatives = new ArrayList<String>();
-
-    List<String> validPathsNumeric = new ArrayList<>();
-    for (var keysNumeric : optionsNumeric) {
-      var pathNumeric = new StringBuilder();
-      for (var keyNumeric : keysNumeric.toCharArray()) {
-        var optionsDirectionalOne = typeDigit(keyNumeric, kbD1);
-        List<String> validPathsD1 = new ArrayList<>();
-        for (var keysDirectionalOne : optionsDirectionalOne) {
-          var pathD1 = new StringBuilder();
-          for (var keyDirectionalOne : keysDirectionalOne.toCharArray()) {
-            pathD1.append(shortest(typeDigit(keyDirectionalOne, kbD2)));
-          }
-          validPathsD1.add(pathD1.toString());
-        }
-        pathNumeric.append(shortest(validPathsD1));
+    var answers = new ArrayList<Long>();
+    for (var code : codes) {
+      var sb = new StringBuilder();
+      for (var ch : code.toCharArray()) {
+        sb.append(typeDigitMultilevel(keyboards, ch));
       }
-      validPathsNumeric.add(pathNumeric.toString());
+      answers.add((long) sb.length() * numberOf(code));
     }
 
-    return shortest(validPathsNumeric);
+    return answers.stream().reduce(0L, Long::sum);
   }
+
+  private static String typeDigitMultilevel(List<Keyboard> keyboards, char ch) {
+    if (keyboards.isEmpty()) {
+      throw new AOCException("No keyboards");
+    }
+
+    var validCombinations = typeDigit(ch, keyboards.getFirst());
+
+    if (keyboards.size() == 1) {
+      return shortest(validCombinations);
+    }
+
+    List<String> validPaths = new ArrayList<>();
+    for (var keys : validCombinations) {
+      var path = new StringBuilder();
+      for (var key : keys.toCharArray()) {
+        path.append(typeDigitMultilevel(keyboards.subList(1, keyboards.size()), key));
+      }
+      validPaths.add(path.toString());
+    }
+    return shortest(validPaths);
+  }
+
+  static Map<Pair<Character, Pair<String, Point>>, List<String>> cache = new HashMap<>();
 
   private static List<String> typeDigit(char digit, Keyboard kb) {
-    var target =
-        kb.matrix.find(digit).findFirst().orElseThrow(() -> new AOCException("Digit not found"));
+    var cacheKey = new Pair<>(digit, new Pair<>(kb.getClass().getSimpleName(), kb.current));
+
+    var target = kb.position(digit);
+    if (cache.containsKey(cacheKey)) {
+      kb.current = target;
+      return cache.get(cacheKey);
+    }
 
     var paths =
         kb.matrix.shortestPaths(kb.current, target).stream()
@@ -97,14 +138,15 @@ public class Day21 {
       return List.of("A");
     }
     kb.current = target;
+    cache.put(cacheKey, paths);
     return paths;
   }
 
-  private static String shortest(List<String> options) {
+  private static String shortest(List<String> values) {
     String min = null;
-    for (var option : options) {
-      if (min == null || option.length() < min.length()) {
-        min = option;
+    for (var value : values) {
+      if (min == null || value.length() < min.length()) {
+        min = value;
       }
     }
     return min;
@@ -135,18 +177,70 @@ public class Day21 {
         .collect(joining());
   }
 
-  static class Keyboard {
+  static class NumericKeyboard extends Keyboard {
+    static final char[][] NUMERIC_KEYBOARD = {
+      {'7', '8', '9'},
+      {'4', '5', '6'},
+      {'1', '2', '3'},
+      {' ', '0', 'A'}
+    };
+
+    final Map<Character, Point> positions = new HashMap<>();
+
+    public NumericKeyboard() {
+      super(new Matrix(NUMERIC_KEYBOARD));
+
+      positions.put('0', new Point(1, 3));
+      positions.put('1', new Point(0, 2));
+      positions.put('2', new Point(1, 2));
+      positions.put('3', new Point(2, 2));
+      positions.put('4', new Point(0, 1));
+      positions.put('5', new Point(1, 1));
+      positions.put('6', new Point(2, 1));
+      positions.put('7', new Point(0, 0));
+      positions.put('8', new Point(1, 0));
+      positions.put('9', new Point(2, 0));
+      positions.put('A', new Point(2, 3));
+    }
+
+    @Override
+    Point position(char c) {
+      return positions.get(c);
+    }
+  }
+
+  static class DirectionalKeyboard extends Keyboard {
+    static final char[][] DIRECTIONAL_KEYPAD = {
+      {' ', '^', 'A'},
+      {'<', 'v', '>'},
+    };
+    final Map<Character, Point> positions = new HashMap<>();
+
+    public DirectionalKeyboard() {
+      super(new Matrix(DIRECTIONAL_KEYPAD));
+      positions.put('^', new Point(1, 0));
+      positions.put('v', new Point(1, 1));
+      positions.put('<', new Point(0, 1));
+      positions.put('>', new Point(2, 1));
+      positions.put('A', new Point(2, 0));
+    }
+
+    @Override
+    Point position(char c) {
+      return positions.get(c);
+    }
+  }
+
+  abstract static class Keyboard {
     private final Matrix matrix;
     private Point current;
 
-    public Keyboard(Matrix matrix) {
+    Keyboard(Matrix matrix) {
       this.matrix = matrix;
       this.current = matrix.get('A');
     }
 
-    public void reset() {
-      current = matrix.get('A');
-    }
+    abstract Point position(char c);
 
     public char replay(String test) {
       var sb = new StringBuilder();
@@ -158,16 +252,4 @@ public class Day21 {
   }
 
   static final Pattern NUMBER = Pattern.compile("(?<n>\\d+)");
-
-  static final char[][] NUMERIC_KEYBOARD = {
-    {'7', '8', '9'},
-    {'4', '5', '6'},
-    {'1', '2', '3'},
-    {' ', '0', 'A'}
-  };
-
-  static final char[][] DIRECTIONAL_KEYPAD = {
-    {' ', '^', 'A'},
-    {'<', 'v', '>'},
-  };
 }
