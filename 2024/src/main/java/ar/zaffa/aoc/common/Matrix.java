@@ -108,4 +108,12 @@ public record Matrix(char[][] matrix) {
     return PuzzleUtils.shortestPath(
         from, to, p -> isInside(p) && get(p) != ' ', s -> s.distance() + 1);
   }
+
+  public List<List<Point>> shortestPaths(Point from, Point to) {
+    if (from.equals(to)) {
+      return List.of();
+    }
+    return PuzzleUtils.shortestPaths(
+        from, to, p -> isInside(p) && get(p) != ' ', s -> s.distance() + 1);
+  }
 }
