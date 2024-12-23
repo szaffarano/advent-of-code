@@ -19,10 +19,12 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
@@ -131,5 +133,31 @@ public class PuzzleUtils {
                               .orElseGet(() -> entry(format("group-%d", i), match.group(i))))
                   .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
             });
+  }
+
+  public static <T> Set<Set<T>> combinations(Set<T> elements, int k) {
+    var n = elements.size();
+    var result = new HashSet<Set<T>>();
+    var indices = range(0, k).toArray();
+    var arr = elements.stream().toList();
+    while (true) {
+      var combination = new HashSet<T>();
+      for (var i : indices) {
+        combination.add(arr.get(i));
+      }
+      result.add(combination);
+      var i = k - 1;
+      while (i >= 0 && indices[i] == i + n - k) {
+        i--;
+      }
+      if (i < 0) {
+        break;
+      }
+      indices[i]++;
+      for (var j = i + 1; j < k; j++) {
+        indices[j] = indices[j - 1] + 1;
+      }
+    }
+    return result;
   }
 }
