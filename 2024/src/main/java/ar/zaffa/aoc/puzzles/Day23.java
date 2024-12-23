@@ -6,11 +6,13 @@ import static ar.zaffa.aoc.annotations.Solution.Part.PART2;
 import static ar.zaffa.aoc.common.PuzzleUtils.lines;
 
 import ar.zaffa.aoc.annotations.Solution;
+import ar.zaffa.aoc.common.Graph;
 import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("unused")
 public class Day23 {
@@ -20,10 +22,6 @@ public class Day23 {
   public static int part1(Path input) {
     var names = nodeNames(input);
     var links = nodeLinks(input, names);
-
-    if (names.size() < 40) {
-      debugLinks(names, links);
-    }
 
     var connectedNodes = new HashSet<Set<Integer>>();
     for (var l1 = 0; l1 < names.size(); l1++) {
@@ -48,6 +46,33 @@ public class Day23 {
             })
         .toList()
         .size();
+  }
+
+  @Solution(
+      day = DAY23,
+      part = PART2,
+      example = "co,de,ka,ta",
+      expected = "ai,bk,dc,dx,fo,gx,hk,kd,os,uz,xn,yk,zs")
+  public static String part2(Path input) {
+    var names = nodeNames(input);
+    var links = nodeLinks(input, names);
+
+    Graph graph = new Graph(names.size());
+
+    lines(input)
+        .forEach(
+            l -> {
+              var parts = l.split("-");
+              var x = names.indexOf(parts[0]);
+              var y = names.indexOf(parts[1]);
+              graph.addEdge(x, y);
+            });
+
+    return graph.findCliques().stream()
+        .sorted((a, b) -> Integer.compare(b.size(), a.size()))
+        .map(s -> s.stream().map(names::get).sorted().collect(Collectors.joining(",")))
+        .toList()
+        .getFirst();
   }
 
   private static boolean[][] nodeLinks(Path input, List<String> names) {
@@ -80,32 +105,5 @@ public class Day23 {
             })
         .stream()
         .toList();
-  }
-
-  private static void debugLinks(List<String> names, boolean[][] links) {
-    System.out.print("   ");
-    for (var n : names) {
-      System.out.printf("%s ", n);
-    }
-    System.out.println();
-    for (var y = 0; y < names.size(); y++) {
-      System.out.print(names.get(y) + " ");
-      for (var x = 0; x < names.size(); x++) {
-        System.out.printf("%2c ", links[y][x] ? 'X' : '.');
-      }
-      System.out.println();
-    }
-  }
-
-  record Node(String name, List<Node> connections) {}
-
-  @Solution(day = DAY23, part = PART2, example = "-1", expected = "-1")
-  public static long part2(Path input) {
-    var data = lines(input).toList();
-    if (data.size() > 20 || data.isEmpty()) {
-      return -1;
-    }
-
-    return 0;
   }
 }
