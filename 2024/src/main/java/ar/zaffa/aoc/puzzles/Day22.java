@@ -8,38 +8,119 @@ import static java.util.stream.LongStream.range;
 
 import ar.zaffa.aoc.annotations.Solution;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 
 @SuppressWarnings("unused")
 public class Day22 {
   private Day22() {}
 
-  @Solution(day = DAY22, part = PART1, example = "37327623", expected = "14476723788")
+  @Solution(day = DAY22, part = PART1, example = "37990510", expected = "14476723788")
   public static long part1(Path input) {
     return lines(input).map(Long::parseLong).toList().stream()
         .map(s -> range(0, 2000).reduce(s, (acc, i) -> secretNumber(acc)))
         .reduce(0L, Long::sum);
   }
 
-  @Solution(day = DAY22, part = PART2, example = "-1", expected = "-1")
+  @Solution(day = DAY22, part = PART2, example = "23", expected = "1630")
   public static long part2(Path input) {
-    var data = lines(input).toList();
-    if (data.size() > 20 || data.isEmpty()) {
-      return -1;
-    }
+    var amountsByChanges = new HashMap<Changes, Long>();
 
-    return 0;
+    lines(input)
+        .map(Long::parseLong)
+        .map(secret -> prices(secret, 2000))
+        .toList()
+        .forEach(
+            prices -> {
+              var visited = new HashSet<Changes>();
+              for (var price : prices) {
+                // only first 4 changes are relevant
+                if (visited.contains(price.changes)) {
+                  continue;
+                }
+                amountsByChanges.compute(
+                    price.changes, (k, v) -> v == null ? price.price : v + price.price);
+                visited.add(price.changes);
+              }
+            });
+
+    return amountsByChanges.values().stream().max(Long::compare).orElse(-1L);
   }
 
-  static long secretNumber(long current) {
-    // 1. Calculate the result of multiplying the secret number by 64. Then, mix this result into
-    //    the secret number. Finally, prune the secret number.
-    // 2. Calculate the result of dividing the secret number by 32. Round the result down to the
-    //    nearest integer. Then, mix this result into the secret number. Finally, prune the secret
-    //    number.
-    // 3. Calculate the result of multiplying the secret number by 2048. Then, mix this result into
-    //    the secret number. Finally, prune the secret number.
+  private static ArrayList<Price> prices(long secret, int times) {
+    final var ringBuffer = new RingBuffer<Long>(4);
+    final var prices = new ArrayList<Price>();
 
-    long stepOne = prune(mix(current, current * 64));
+    secret = secretNumber(secret);
+    var price = secret % 10;
+    for (var i = 0; i < times; i++) {
+      var nextSecret = secretNumber(secret);
+      var nextPrice = nextSecret % 10;
+
+      if (ringBuffer.isFull()) {
+        prices.add(new Price(price, new Changes(ringBuffer.toList())));
+      }
+      ringBuffer.add(nextPrice - price);
+      price = nextPrice;
+      secret = nextSecret;
+    }
+
+    return prices;
+  }
+
+  record Price(long price, Changes changes) {}
+
+  record Changes(List<Long> changes) {}
+
+  public static class RingBuffer<T> {
+    private final int size;
+    private final List<T> buffer;
+    private int idx = 0;
+
+    public RingBuffer(int size) {
+      this.size = size;
+      this.buffer = new ArrayList<>(size);
+      for (var i = 0; i < size; i++) {
+        buffer.add(null);
+      }
+    }
+
+    public void add(T value) {
+      buffer.set(idx, value);
+      idx = (idx + 1) % size;
+    }
+
+    public T get(int i) {
+      return buffer.get((idx + i) % size);
+    }
+
+    public T peek() {
+      return buffer.get(idx);
+    }
+
+    public List<T> toList() {
+      var list = new ArrayList<T>(size);
+      for (var i = 0; i < size; i++) {
+        var curr = (idx + i) % size;
+        list.add(buffer.get(curr));
+      }
+      return list;
+    }
+
+    public boolean isFull() {
+      for (var i = 0; i < size; i++) {
+        if (buffer.get(i) == null) {
+          return false;
+        }
+      }
+      return true;
+    }
+  }
+
+  static long secretNumber(long seed) {
+    long stepOne = prune(mix(seed, seed * 64));
     long stepTwo = prune(mix(stepOne, stepOne / 32));
     return prune(mix(stepTwo, stepTwo * 2048));
   }
