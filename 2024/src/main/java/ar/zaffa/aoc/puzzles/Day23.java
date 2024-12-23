@@ -54,23 +54,18 @@ public class Day23 {
       example = "co,de,ka,ta",
       expected = "ai,bk,dc,dx,fo,gx,hk,kd,os,uz,xn,yk,zs")
   public static String part2(Path input) {
-    var names = nodeNames(input);
-    var links = nodeLinks(input, names);
-
-    Graph graph = new Graph(names.size());
+    var graph = new Graph<String>();
 
     lines(input)
         .forEach(
             l -> {
               var parts = l.split("-");
-              var x = names.indexOf(parts[0]);
-              var y = names.indexOf(parts[1]);
-              graph.addEdge(x, y);
+              graph.addEdge(parts[0], parts[1]);
             });
 
     return graph.findCliques().stream()
         .sorted((a, b) -> Integer.compare(b.size(), a.size()))
-        .map(s -> s.stream().map(names::get).sorted().collect(Collectors.joining(",")))
+        .map(c -> c.stream().sorted().collect(Collectors.joining(",")))
         .toList()
         .getFirst();
   }
