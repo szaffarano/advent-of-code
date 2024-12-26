@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BinaryOperator;
 import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
@@ -45,6 +46,14 @@ public class PuzzleUtils {
   public static Stream<String> lines(Path input) {
     try {
       return readAllLines(input).stream().filter(l -> !l.isBlank());
+    } catch (IOException e) {
+      throw new AOCException(e);
+    }
+  }
+
+  public static Stream<String> linesRaw(Path input) {
+    try {
+      return readAllLines(input).stream();
     } catch (IOException e) {
       throw new AOCException(e);
     }
@@ -159,5 +168,11 @@ public class PuzzleUtils {
       }
     }
     return result;
+  }
+
+  public static <T> BinaryOperator<T> dummyCombiner() {
+    return (a, b) -> {
+      throw new UnsupportedOperationException();
+    };
   }
 }
