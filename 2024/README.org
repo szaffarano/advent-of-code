@@ -4,5 +4,8 @@
 
 Back to the roots!
 
-#+ATTR_HTML: :style margin-left: auto; margin-right: auto;
+#+ATTR_HTML: :style margin-left: auto; margin-right: auto; height: 20%;
 [[./img/java.svg]]
+
+#+ATTR_HTML: :style margin-left: auto; margin-right: auto;
+[[./img/aoc-2024.png]]
