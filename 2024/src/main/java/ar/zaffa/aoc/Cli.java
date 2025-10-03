@@ -22,12 +22,14 @@ class Cli implements Callable<Integer> {
 
   @CommandLine.Option(
       names = {"-d", "--day"},
-      description = "Day of the challenge.")
+      description = "Day of the challenge.",
+      required = true)
   private Day day;
 
   @CommandLine.Option(
       names = {"-p", "--part"},
-      description = "Part of the challenge.")
+      description = "Part of the challenge.",
+      required = true)
   private Part part;
 
   @Override
