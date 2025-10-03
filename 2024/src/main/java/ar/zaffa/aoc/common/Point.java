@@ -41,12 +41,18 @@ public record Point(int x, int y) {
   }
 
   public boolean lessThan(Point other) {
-    return y < other.y || x < other.x;
+    if (y != other.y) {
+      return y < other.y;
+    }
+    return x < other.x;
   }
 
   @SuppressWarnings("unused")
   public boolean greaterThan(Point other) {
-    return y > other.y || x > other.x;
+    if (y != other.y) {
+      return y > other.y;
+    }
+    return x > other.x;
   }
 
   public Direction directionOf(Point p2) {
